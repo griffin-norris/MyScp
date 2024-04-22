@@ -1,0 +1,4 @@
+name = "MyScp"
+uuid = "f177618d-974c-427c-8d05-714372fee3d7"
+authors = ["Griffin Norris <norrisg@student.ethz.ch>"]
+version = "0.1.0"
