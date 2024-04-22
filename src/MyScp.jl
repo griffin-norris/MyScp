@@ -89,5 +89,11 @@ function OptimizationProblem()::OptimizationProblem
     )
 end
 
+pbm = OptimizationProblem()
+
+greet()
+println(pbm.nx)
+pbm.nx = 1
+println(pbm.nx)
 
 end # module MyScp
