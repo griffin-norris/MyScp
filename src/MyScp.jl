@@ -5,16 +5,18 @@ greet() = println("Hello World!")
 const Func = Union{Nothing,Function}
 
 """
-                       1
-    min [ϕ(x(t), p) + ∫ Γ(x(t), u(t), p)dt]
-    u,p                0
+    Describes generic optimization problem:
 
-    s.t     x_dot(t) = f(t, x(t), u(t), p),
-            (x(t), p) ∈ X,
-            (u(t), p) ∈ U,
-            s(t, x(t), u(t), p) ≤ 0,
-            g_ic(x(0), p) = 0,
-            g_tc(x(1), p) = 0,
+                            1
+        min. [ϕ(x(t), p) + ∫  Γ(x(t), u(t), p)dt]
+        u,p                 0
+
+        s.t     x_dot(t) = f(t, x(t), u(t), p),     Dynamics
+                (x(t), p) ∈ X,                      State constraints
+                (u(t), p) ∈ U,                      Input constraints
+                s(t, x(t), u(t), p) ≤ 0,            State inequality constraints
+                g_ic(x(0), p) = 0,                  Initial conditions
+                g_tc(x(1), p) = 0,                  Terminal condition
 """
 mutable struct OptimizationProblem
     # ..:: Dimensions ::..
