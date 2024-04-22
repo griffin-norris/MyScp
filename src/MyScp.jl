@@ -41,4 +41,53 @@ mutable struct OptimizationProblem
     g_tc::Func # terminal condition
 end
 
+"""
+    Empty constructor for OptimizationProblem
+"""
+function OptimizationProblem()::OptimizationProblem
+    # ..:: Dimensions ::..
+    nx = 0
+    nu = 0
+    np = 0
+    # ..:: Cost ::..
+    ϕ = nothing
+    Γ = nothing
+    # ..:: Dynamics ::..
+    f = nothing
+    A = nothing
+    B = nothing
+    F = nothing
+    # ..:: Constraints ::..
+    X = nothing
+    U = nothing
+    s = nothing
+    C = nothing
+    D = nothing
+    G = nothing
+    # ..:: Boundary conditions ::..
+    g_ic = nothing
+    g_tc = nothing
+
+    return OptimizationProblem(
+        nx,
+        nu,
+        np,
+        ϕ,
+        Γ,
+        f,
+        A,
+        B,
+        F,
+        X,
+        U,
+        s,
+        C,
+        D,
+        G,
+        g_ic,
+        g_tc,
+    )
+end
+
+
 end # module MyScp
