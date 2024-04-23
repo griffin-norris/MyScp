@@ -1,6 +1,8 @@
 module MyScp
 
 using JuMP, ECOS
+using LinearAlgebra
+
 greet() = println("Hello World!")
 
 const Func = Union{Nothing,Function}
@@ -37,6 +39,9 @@ pbm.F = (t, k, x, u, p, pbm) -> zeros(pbm.nx, pbm.np)
 
 # Define constraints
 # TODO
+
+A_d = exp(pbm.A(0, 0, [0 0 0], [1 1], 1, pbm) * 0.1)
+print(A_d)
 
 # Define boundary conditions
 pbm.g_ic = (x, p, pbm) -> x-_x0
