@@ -53,13 +53,14 @@ A_d = exp(pbm.A(0, 0, [0 0 0], [1 1], 1, pbm) * 1 / pbm.N)
 print(A_d)
 
 # Define boundary conditions
-pbm.g_ic = (x, p, pbm) -> x-_x0
-pbm.H_0 = (x, p, pbm) -> I(pbm.nx)
-pbm.g_tc = (x, p, pbm) -> x-_xf
-pbm.H_f = (x, p, pbm) -> I(pbm.nx)
+pbm.g₀ = (x, p, pbm) -> x-_x0
+pbm.H₀ = (x, p, pbm) -> I(pbm.nx)
+pbm.g₁ = (x, p, pbm) -> x-_xf
+pbm.H₁ = (x, p, pbm) -> I(pbm.nx)
 
 println(pbm.f)
 
+# Test JuMP, ECOS
 model = JuMP.Model(ECOS.Optimizer)
 @variable(model, x >= 0)
 @variable(model, 0 <= y <= 3)
@@ -76,5 +77,33 @@ println(value(x))
 println(value(y))
 println(shadow_price(c1))
 println(shadow_price(c2))
+
+# SCvx algorithm modifications
+f_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
+    pbm.A(t, k, x, u, p, pbm) * x
+    + pbm.B(t, k, x, u, p, pbm) * u
+    + pbm.F(t, k, x, u, p, pbm) * p
+    + ν
+)
+s_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
+    pbm.C(t, k, x, u, p, pbm) * x 
+    + pbm.D(t, k, x, u, p, pbm) * u 
+    + pbm.G(t, k, x, u, p, pbm) * p 
+    + pbm.r′(t, k, x, u, p, pbm)
+    - νₛ
+)
+ic_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
+    pbm.H₀(t, k, x, u, p, pbm) * _x0 
+    + pbm.K₀ * p
+    + pbm.ℓ₀ + ν₀
+)
+tc_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
+    pbm.H₁(t, k, x, u, p, pbm) * _xf
+    + pbm.K₁ * p
+    + pbm.ℓ₁ + ν₀
+)
+trust_region = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
+    norm2(δx) + norm2(δu) + norm2(δp) - η
+)
 
 end # module MyScp
