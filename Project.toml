@@ -2,3 +2,7 @@ name = "MyScp"
 uuid = "f177618d-974c-427c-8d05-714372fee3d7"
 authors = ["Griffin Norris <norrisg@student.ethz.ch>"]
 version = "0.1.0"
+
+[deps]
+ECOS = "e2685f51-7e38-5353-a97d-a921fd2c8199"
+JuMP = "4076af6c-e467-56ae-b986-b466b2749572"

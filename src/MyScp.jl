@@ -1,5 +1,6 @@
 module MyScp
 
+using JuMP, ECOS
 greet() = println("Hello World!")
 
 const Func = Union{Nothing,Function}
@@ -41,5 +42,22 @@ pbm.g_tc = (x, p, pbm) -> x-_xf
 pbm.H_f = (x, p, pbm) -> I(pbm.nx)
 
 println(pbm.f)
+
+model = JuMP.Model(ECOS.Optimizer)
+@variable(model, x >= 0)
+@variable(model, 0 <= y <= 3)
+@objective(model, Min, 12x + 20y)
+@constraint(model, c1, 6x + 8y >= 100)
+@constraint(model, c2, 7x + 12y >= 120)
+print(model)
+optimize!(model)
+println(termination_status(model))
+println(primal_status(model))
+println(dual_status(model))
+println(objective_value(model))
+println(value(x))
+println(value(y))
+println(shadow_price(c1))
+println(shadow_price(c2))
 
 end # module MyScp
