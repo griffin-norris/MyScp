@@ -90,5 +90,9 @@ function OptimizationProblem()::OptimizationProblem
         G,
         g_ic,
         g_tc,
+        H_0,
+        K_0,
+        H_f,
+        K_f,
     )
 end
