@@ -34,12 +34,14 @@ mutable struct OptimizationProblem
     D::Func     # ds/du
     G::Func     # ds/dp
     # ..:: Boundary conditions ::..
-    g_ic::Func  # Initial condition
-    g_tc::Func  # Terminal condition
-    H_0::Func   # dg_ic/dx
-    K_0::Func   # dg_ic/dp
-    H_f::Func   # dg_tc/dx
-    K_f::Func   # dg_tc/dp
+    g₀::Func    # Initial condition
+    g₁::Func    # Terminal condition
+    H₀::Func    # ∇x g₀(̄x(0), ̄p)
+    K₀::Func    # ∇u g₀(̄x(0), ̄p)
+    ℓ₀::Func    # g₀(̄x(0), ̄p) - H₀*̄x(0) - K₀*̄p
+    H₁::Func    # ∇x g₁(̄x(1), ̄p)
+    K₁::Func    # ∇u g₁(̄x(1), ̄p)
+    ℓ₁::Func    # g₁(̄x(1), ̄p) - H₁*̄x(1) - K₁*̄p
 end
 
 """
@@ -66,12 +68,14 @@ function OptimizationProblem()::OptimizationProblem
     D = nothing
     G = nothing
     # ..:: Boundary conditions ::..
-    g_ic = nothing
-    g_tc = nothing
-    H_0 = nothing
-    K_0 = nothing
-    H_f = nothing
-    K_f = nothing
+    g₀ = nothing
+    g₁ = nothing
+    H₀ = nothing
+    K₀ = nothing
+    ℓ₀ = nothing
+    H₁ = nothing
+    K₁ = nothing
+    ℓ₁ = nothing
 
     return OptimizationProblem(
         nx,
@@ -89,11 +93,13 @@ function OptimizationProblem()::OptimizationProblem
         C,
         D,
         G,
-        g_ic,
-        g_tc,
-        H_0,
-        K_0,
-        H_f,
-        K_f,
+        g₀,
+        g₁,
+        H₀,
+        K₀,
+        ℓ₀,
+        H₁,
+        K₁,
+        ℓ₁,
     )
 end
