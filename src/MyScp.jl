@@ -12,10 +12,12 @@ _tf = 1
 
 greet()
 
+# Define variable sizes
 pbm.nx = 3
 pbm.nu = 2
 pbm.np = 1
 
+# Define dynamics
 pbm.f = (t, k, x, u, p) -> [u[1]*sin(x[3]); u[1]*cos(x[3]); u[2]]*_tf
 pbm.A = (t, k, x, u, p, pbm) ->
         [0 0 u[1]*cos(x[3]);
@@ -26,6 +28,12 @@ pbm.B = (t, k, x, u, p, pbm) ->
          cos(x[3]) 0;
          0 1]*_tf
 pbm.F = (t, k, x, u, p, pbm) -> zeros(pbm.nx, pbm.np)
+
+# Define constraints
+# TODO
+
+# Define boundary conditions
+# TODO
 
 println(pbm.f)
 
