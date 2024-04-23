@@ -108,6 +108,16 @@ tc_scvx_ct = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
 trust_region = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
     norm2(x-x_bar) + norm2(u-u_bar) + norm2(p-p_bar) - η
 )
+
+# SCvx objective function
+P = (x, y) -> (norm1(x) + norm1(y))
+
+ϕλ = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.ϕ(t, k, x, u, p, pbm) + λ*P(0,ν₀) + λ*P(0,ν₁)
+)
+Γλ = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.Γ(t, k, x, u, p, pbm) + λ*P(E*ν, νₛ)
+)
 )
 
 end # module MyScp
