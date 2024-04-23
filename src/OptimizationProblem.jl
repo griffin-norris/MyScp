@@ -5,12 +5,12 @@
         min. [ϕ(x(t), p) + ∫  Γ(x(t), u(t), p)dt]
         u,p                 0
 
-        s.t     x_dot(t) = f(t, x(t), u(t), p),     Dynamics
-                (x(t), p) ∈ X,                      State constraints
-                (u(t), p) ∈ U,                      Input constraints
-                s(t, x(t), u(t), p) ≤ 0,            State inequality constraints
-                g_ic(x(0), p) = 0,                  Initial conditions
-                g_tc(x(1), p) = 0,                  Terminal condition
+        s.t     ̇x(t) = f(t, x(t), u(t), p),     Dynamics
+                (x(t), p) ∈ X,                  State constraints
+                (u(t), p) ∈ U,                  Input constraints
+                s(t, x(t), u(t), p) ≤ 0,        State inequality constraints
+                g₀(x(0), p) = 0,                Initial conditions
+                g₁(x(1), p) = 0,                Terminal condition
 """
 mutable struct OptimizationProblem
     # ..:: Dimensions ::..
@@ -23,16 +23,17 @@ mutable struct OptimizationProblem
     Γ::Func     # Running cost
     # ..:: Dynamics ::..
     f::Func     # Continuous dynamics
-    A::Func     # df/dx
-    B::Func     # df/du
-    F::Func     # df/dp
+    A::Func     # ∇x f(t, ̄x(t), ̄u(t), ̄p)
+    B::Func     # ∇u f(t, ̄x(t), ̄u(t), ̄p)
+    F::Func     # ∇p f(t, ̄x(t), ̄u(t), ̄p)
     # ..:: Constraints ::..
     X::Func     # (x(t), p) ∈ X
     U::Func     # (u(t), p) ∈ U
     s::Func     # s(t, x(t), u(t), p) ≤ 0
-    C::Func     # ds/dx
-    D::Func     # ds/du
-    G::Func     # ds/dp
+    C::Func     # ∇x s(t, ̄x(t), ̄u(t), ̄p)
+    D::Func     # ∇u s(t, ̄x(t), ̄u(t), ̄p)
+    G::Func     # ∇p s(t, ̄x(t), ̄u(t), ̄p)
+    r′::Func    # r′(t) ≔ s(t, ̄x(t), ̄u(t), ̄p) - C*̄x(t) - D*̄u(t) - G*̄p
     # ..:: Boundary conditions ::..
     g₀::Func    # Initial condition
     g₁::Func    # Terminal condition
@@ -67,6 +68,7 @@ function OptimizationProblem()::OptimizationProblem
     C = nothing
     D = nothing
     G = nothing
+    r′ = nothing
     # ..:: Boundary conditions ::..
     g₀ = nothing
     g₁ = nothing
@@ -93,6 +95,7 @@ function OptimizationProblem()::OptimizationProblem
         C,
         D,
         G,
+        r′,
         g₀,
         g₁,
         H₀,
