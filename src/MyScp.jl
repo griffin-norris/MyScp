@@ -14,6 +14,9 @@ pbm = OptimizationProblem()
 _tf = 1
 _x0 = [0.1; 0; 0]   # Initial state
 _xf = [0; 4; 0]     # Terminal state
+_ro = 0.35          # KOZ radius
+_co = [-0.1; 1]     # KOZ center
+_carw = 0.1         # Car width
 
 greet()
 
@@ -41,7 +44,10 @@ pbm.B = (t, k, x, u, p, pbm) ->
 pbm.F = (t, k, x, u, p, pbm) -> zeros(pbm.nx, pbm.np)
 
 # Define constraints
-# TODO
+pbm.s = (t, k, x, u, p, pbm) -> [(_ro+_carw/2)^2-(x[1]-_co[1])^2-(x[2]-_co[2])^2]
+pbm.C = (t, k, x, u, p, pbm) -> collect([-2*(x[1]-_co[1]); -2*(x[2]-_co[2]); 0]')
+pbm.D = (t, k, x, u, p, pbm) -> zeros(1, pbm.nu)
+pbm.G = (t, k, x, u, p, pbm) -> zeros(1, pbm.np)
 
 A_d = exp(pbm.A(0, 0, [0 0 0], [1 1], 1, pbm) * 0.1)
 print(A_d)
