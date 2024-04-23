@@ -20,6 +20,9 @@ pbm.nx = 3
 pbm.nu = 2
 pbm.np = 1
 
+# Define cost
+pbm.Γ = (t, k, x, u, p, pbm) -> u'*u
+
 # Define dynamics
 pbm.f = (t, k, x, u, p) -> [u[1]*sin(x[3]); u[1]*cos(x[3]); u[2]]*_tf
 pbm.A = (t, k, x, u, p, pbm) ->
