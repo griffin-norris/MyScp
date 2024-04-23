@@ -14,27 +14,31 @@
 """
 mutable struct OptimizationProblem
     # ..:: Dimensions ::..
-    nx::Int # state
-    nu::Int # input
-    np::Int # parameters
+    nx::Int     # state
+    nu::Int     # input
+    np::Int     # parameters
     # ..:: Cost ::..
-    ϕ::Func # terminal cost
-    Γ::Func # running cost
+    ϕ::Func     # terminal cost
+    Γ::Func     # running cost
     # ..:: Dynamics ::..
-    f::Func # continuous dynamics
-    A::Func # df/dx
-    B::Func # df/du
-    F::Func # df/dp
+    f::Func     # continuous dynamics
+    A::Func     # df/dx
+    B::Func     # df/du
+    F::Func     # df/dp
     # ..:: Constraints ::..
-    X::Func # (x(t), p) ∈ X
-    U::Func # (u(t), p) ∈ U
-    s::Func # s(t, x(t), u(t), p) ≤ 0
-    C::Func # ds/dx
-    D::Func # ds/du
-    G::Func # ds/dp
+    X::Func     # (x(t), p) ∈ X
+    U::Func     # (u(t), p) ∈ U
+    s::Func     # s(t, x(t), u(t), p) ≤ 0
+    C::Func     # ds/dx
+    D::Func     # ds/du
+    G::Func     # ds/dp
     # ..:: Boundary conditions ::..
-    g_ic::Func # initial condition
-    g_tc::Func # terminal condition
+    g_ic::Func  # initial condition
+    g_tc::Func  # terminal condition
+    H_0::Func   # dg_ic/dx
+    K_0::Func   # dg_ic/dp
+    H_f::Func   # dg_tc/dx
+    K_f::Func   # dg_tc/dp
 end
 
 """
@@ -63,6 +67,10 @@ function OptimizationProblem()::OptimizationProblem
     # ..:: Boundary conditions ::..
     g_ic = nothing
     g_tc = nothing
+    H_0 = nothing
+    K_0 = nothing
+    H_f = nothing
+    K_f = nothing
 
     return OptimizationProblem(
         nx,
