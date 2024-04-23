@@ -14,14 +14,15 @@
 """
 mutable struct OptimizationProblem
     # ..:: Dimensions ::..
-    nx::Int     # state
-    nu::Int     # input
-    np::Int     # parameters
+    N::Int      # Nodes
+    nx::Int     # State
+    nu::Int     # Input
+    np::Int     # Parameters
     # ..:: Cost ::..
-    ϕ::Func     # terminal cost
-    Γ::Func     # running cost
+    ϕ::Func     # Terminal cost
+    Γ::Func     # Running cost
     # ..:: Dynamics ::..
-    f::Func     # continuous dynamics
+    f::Func     # Continuous dynamics
     A::Func     # df/dx
     B::Func     # df/du
     F::Func     # df/dp
@@ -33,8 +34,8 @@ mutable struct OptimizationProblem
     D::Func     # ds/du
     G::Func     # ds/dp
     # ..:: Boundary conditions ::..
-    g_ic::Func  # initial condition
-    g_tc::Func  # terminal condition
+    g_ic::Func  # Initial condition
+    g_tc::Func  # Terminal condition
     H_0::Func   # dg_ic/dx
     K_0::Func   # dg_ic/dp
     H_f::Func   # dg_tc/dx
