@@ -24,7 +24,7 @@ pbm.np = 1
 pbm.Γ = (t, k, x, u, p, pbm) -> u'*u
 
 # Define dynamics
-pbm.f = (t, k, x, u, p) -> [u[1]*sin(x[3]); u[1]*cos(x[3]); u[2]]*_tf
+pbm.f = (t, k, x, u, p, pbm) -> [u[1]*sin(x[3]); u[1]*cos(x[3]); u[2]]*_tf
 pbm.A = (t, k, x, u, p, pbm) ->
         [0 0 u[1]*cos(x[3]);
          0 0 -u[1]*sin(x[3]);
