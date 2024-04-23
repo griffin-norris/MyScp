@@ -8,9 +8,25 @@ include("OptimizationProblem.jl")
 
 pbm = OptimizationProblem()
 
+_tf = 1
+
 greet()
-println(pbm.nx)
-pbm.nx = 1
-println(pbm.nx)
+
+pbm.nx = 3
+pbm.nu = 2
+pbm.np = 1
+
+pbm.f = (t, k, x, u, p) -> [u[1]*sin(x[3]); u[1]*cos(x[3]); u[2]]*_tf
+pbm.A = (t, k, x, u, p, pbm) ->
+        [0 0 u[1]*cos(x[3]);
+         0 0 -u[1]*sin(x[3]);
+         0 0 0]*_tf
+pbm.B = (t, k, x, u, p, pbm) ->
+        [sin(x[3]) 0;
+         cos(x[3]) 0;
+         0 1]*_tf
+pbm.F = (t, k, x, u, p, pbm) -> zeros(pbm.nx, pbm.np)
+
+println(pbm.f)
 
 end # module MyScp
