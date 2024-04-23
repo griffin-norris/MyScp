@@ -26,6 +26,7 @@ mutable struct OptimizationProblem
     A::Func     # ∇x f(t, ̄x(t), ̄u(t), ̄p)
     B::Func     # ∇u f(t, ̄x(t), ̄u(t), ̄p)
     F::Func     # ∇p f(t, ̄x(t), ̄u(t), ̄p)
+    r::Func     # r(t) = f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p
     # ..:: Constraints ::..
     X::Func     # (x(t), p) ∈ X
     U::Func     # (u(t), p) ∈ U
@@ -62,6 +63,7 @@ function OptimizationProblem()::OptimizationProblem
     A = nothing
     B = nothing
     F = nothing
+    r = nothing
     # ..:: Constraints ::..
     X = nothing
     U = nothing
@@ -91,6 +93,7 @@ function OptimizationProblem()::OptimizationProblem
         A,
         B,
         F,
+        r,
         X,
         U,
         s,
