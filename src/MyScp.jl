@@ -49,7 +49,7 @@ pbm.C = (t, k, x, u, p, pbm) -> collect([-2*(x[1]-_co[1]); -2*(x[2]-_co[2]); 0]'
 pbm.D = (t, k, x, u, p, pbm) -> zeros(1, pbm.nu)
 pbm.G = (t, k, x, u, p, pbm) -> zeros(1, pbm.np)
 
-A_d = exp(pbm.A(0, 0, [0 0 0], [1 1], 1, pbm) * 0.1)
+A_d = exp(pbm.A(0, 0, [0 0 0], [1 1], 1, pbm) * 1 / pbm.N)
 print(A_d)
 
 # Define boundary conditions

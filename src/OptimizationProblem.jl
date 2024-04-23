@@ -50,6 +50,7 @@ end
 """
 function OptimizationProblem()::OptimizationProblem
     # ..:: Dimensions ::..
+    N = 0
     nx = 0
     nu = 0
     np = 0
@@ -80,6 +81,7 @@ function OptimizationProblem()::OptimizationProblem
     ℓ₁ = nothing
 
     return OptimizationProblem(
+        N,
         nx,
         nu,
         np,
