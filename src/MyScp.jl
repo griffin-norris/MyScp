@@ -118,6 +118,39 @@ P = (x, y) -> (norm1(x) + norm1(y))
 Γλ = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
     pbm.Γ(t, k, x, u, p, pbm) + λ*P(E*ν, νₛ)
 )
+
+# Discretized system
+
+Aₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.A(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+Bₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.B(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+Fₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.F(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+# rₖ TODO
+Eₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(E * 1/pbm.N)
+)
+Cₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.C(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+Dₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.D(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+Gₖ = (t, k, x_bar, u_bar, p, pbm) -> (
+    exp(pbm.G(t, k, x_bar, u_bar, p, pbm) * 1/pbm.N)
+)
+# r′ₖ TODO
+
+# Discretized cost
+L = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    ϕλ(t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) + 
+    for k in 1:N-1
+        
+    end
 )
 
 end # module MyScp
