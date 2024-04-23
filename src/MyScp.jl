@@ -17,6 +17,9 @@ _xf = [0; 4; 0]     # Terminal state
 
 greet()
 
+# Define nodes
+pbm.N = 10
+
 # Define variable sizes
 pbm.nx = 3
 pbm.nu = 2
