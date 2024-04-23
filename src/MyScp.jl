@@ -78,32 +78,36 @@ println(value(y))
 println(shadow_price(c1))
 println(shadow_price(c2))
 
+E = I(pbm.nx)
+
 # SCvx algorithm modifications
-f_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
-    pbm.A(t, k, x, u, p, pbm) * x
-    + pbm.B(t, k, x, u, p, pbm) * u
-    + pbm.F(t, k, x, u, p, pbm) * p
-    + ν
+f_scvx_ct = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.A(t, k, x_bar, u_bar, p, pbm) * x +
+    pbm.B(t, k, x_bar, u_bar, p, pbm) * u +
+    pbm.F(t, k, x_bar, u_bar, p, pbm) * p +
+    pbm.r(t, k, x_bar, u_bar, p, pbm) +
+    E*ν
 )
-s_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
-    pbm.C(t, k, x, u, p, pbm) * x 
-    + pbm.D(t, k, x, u, p, pbm) * u 
-    + pbm.G(t, k, x, u, p, pbm) * p 
-    + pbm.r′(t, k, x, u, p, pbm)
-    - νₛ
+s_scvx_ct = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.C(t, k, x_bar, u_bar, p_bar, pbm) * x +
+    pbm.D(t, k, x_bar, u_bar, p_bar, pbm) * u +
+    pbm.G(t, k, x_bar, u_bar, p_bar, pbm) * p +
+    pbm.r′(t, k, x_bar, u_bar, p_bar, pbm) -
+    νₛ
 )
-ic_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
-    pbm.H₀(t, k, x, u, p, pbm) * _x0 
-    + pbm.K₀ * p
-    + pbm.ℓ₀ + ν₀
+ic_scvx_ct = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.H₀(t, k, x_bar, u_bar, p_bar, pbm) * x
+    + pbm.K₀(t, k, x_bar, u_bar, p_bar, pbm) * p
+    + pbm.ℓ₀(t, k, x_bar, u_bar, p_bar, pbm) + ν₀
 )
-tc_scvx_ct = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
-    pbm.H₁(t, k, x, u, p, pbm) * _xf
-    + pbm.K₁ * p
-    + pbm.ℓ₁ + ν₀
+tc_scvx_ct = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    pbm.H₁(t, k, x_bar, u_bar, p_bar, pbm) * x
+    + pbm.K₁(t, k, x_bar, u_bar, p_bar, pbm) * p
+    + pbm.ℓ₁(t, k, x_bar, u_bar, p_bar, pbm) + ν₀
 )
-trust_region = (t, k, x, u, p, pbm, ν, νₛ, ν₀) -> (
-    norm2(δx) + norm2(δu) + norm2(δp) - η
+trust_region = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
+    norm2(x-x_bar) + norm2(u-u_bar) + norm2(p-p_bar) - η
+)
 )
 
 end # module MyScp
