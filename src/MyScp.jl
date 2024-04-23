@@ -9,6 +9,8 @@ include("OptimizationProblem.jl")
 pbm = OptimizationProblem()
 
 _tf = 1
+_x0 = [0.1; 0; 0]   # Initial state
+_xf = [0; 4; 0]     # Terminal state
 
 greet()
 
@@ -33,7 +35,10 @@ pbm.F = (t, k, x, u, p, pbm) -> zeros(pbm.nx, pbm.np)
 # TODO
 
 # Define boundary conditions
-# TODO
+pbm.g_ic = (x, p, pbm) -> x-_x0
+pbm.H_0 = (x, p, pbm) -> I(pbm.nx)
+pbm.g_tc = (x, p, pbm) -> x-_xf
+pbm.H_f = (x, p, pbm) -> I(pbm.nx)
 
 println(pbm.f)
 
