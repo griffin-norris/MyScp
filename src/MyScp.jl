@@ -55,8 +55,14 @@ print(A_d)
 # Define boundary conditions
 pbm.g₀ = (x, p, pbm) -> x-_x0
 pbm.H₀ = (x, p, pbm) -> I(pbm.nx)
+pbm.ℓ₀ = (x₀, x_bar, p_bar, pbm) -> (
+    pbm.g₀(x_bar, p_bar, pbm) - pbm.H₀(x_bar, p_bar, pbm) * x₀ - pbm.K₀(x, p, pbm) * p_bar
+)
 pbm.g₁ = (x, p, pbm) -> x-_xf
 pbm.H₁ = (x, p, pbm) -> I(pbm.nx)
+pbm.ℓ₁ = (x₁, x_bar, p_bar, pbm) -> (
+    pbm.g₁(x_bar, p_bar, pbm) - pbm.H₁(x_bar, p_bar, pbm) * x₁ - pbm.K₁(x, p, pbm) * p_bar
+)
 
 println(pbm.f)
 
