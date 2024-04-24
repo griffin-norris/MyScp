@@ -151,12 +151,4 @@ Gₖ = (t, k, x_bar, u_bar, p, pbm) -> (
 )
 # r′ₖ TODO
 
-# Discretized cost
-L = (t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) -> (
-    ϕλ(t, k, x, u, p, pbm, x_bar, u_bar, p_bar, ν, νₛ, ν₀) + 
-    for k in 1:N-1
-        
-    end
-)
-
 end # module MyScp
