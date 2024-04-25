@@ -46,6 +46,16 @@ mutable struct OptimizationProblem
     ℓ₁::Func    # g₁(̄x(1), ̄p) - H₁*̄x(1) - K₁*̄p
 end
 
+# ̇x(t)      = A*x(t) + B*u(t) + F*p + r(t) + E*ν(t)
+# r(t)      = f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p
+# ⇒ ̇x(t)    = A*x(t) + B*u(t) + F*p + f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p + E*ν(t)
+#           = A(x - ̄x) + B(u - ̄u) + F(p - ̄p) + f(t, ̄x, ̄u, ̄p) + E*ν
+#           ↑
+#           First order Taylor series approximation of f(t, x, u, p) 
+#           around previous trajectory (̄x, ̄u, ̄p)
+
+# xₖ₊₁  = Aₖ*xₖ + Bₖ*uₖ +Fₖ*pₖ + rₖ + Eₖ*νₖ
+
 """
     Empty constructor for OptimizationProblem
 """
