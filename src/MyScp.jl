@@ -125,30 +125,64 @@ P = (x, y) -> (norm1(x) + norm1(y))
     pbm.Γ(t, k, x, u, p, pbm) + λ * P(E * ν, νₛ)
 )
 
-# Discretized system
+# Discretization
 
-Aₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.A(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
+function discretize()
+
+    g = (t, V) -> get_dVdt_foh(nx, t, V, idx, f, A, B, F, r)
+
+    dt = # TODO
+
+    k1 = g(t, V)
+    k2 = g(t + dt / 2, V + dt / 2 * k1)
+    k3 = g(t + dt / 2, V + dt / 2 * k2)
+    k4 = g(t + dt, V + dt * k3)
+    Vnew = V + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+
+    
+
+end
+
+function get_dVdt_foh(
+    nx,
+    t,
+    V,
+    idx,
+    f,
+    A,
+    B,
+    F,
+    r
 )
-Bₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.B(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
-)
-Fₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.F(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
-)
-# rₖ TODO
-Eₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(E * 1 / pbm.N)
-)
-Cₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.C(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
-)
-Dₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.D(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
-)
-Gₖ = (t, k, x_bar, u_bar, p, pbm) -> (
-    exp(pbm.G(t, k, x_bar, u_bar, p, pbm) * 1 / pbm.N)
-)
-# r′ₖ TODO
+
+    Phi = reshape(V[idx.A], (nx, nx))
+    σ₋ = tₖ₊ - t / tₖ₊ - tₖ
+    σ₊ + t - tₖ / tₖ₊ - tₖ
+
+    fc = f(t, k, x, u, p)
+    Ac = A(t, k, x, u, p)
+    Bc = B(t, k, x, u, p)
+    Fc = F(t, k, x, u, p)
+    rc = r(t, k, x, u, p)
+
+    Phi_inv = Phi \ I(nx)
+    dPhidt = Ac * Phi
+    dBminusdt = Phi_inv * σ₋ * Bc
+    dBplusdt = Phi_inv * σ₊ * Bc
+    dFdt = Phi_inv * Fc
+    drdt = Phi_inv * rc
+    dEdt = Phi_inv * Ec
+
+    dVdt = [
+        fc
+        vec(dPhidt)
+        vec(dBminusdt)
+        vec(dBplusdt)
+        vec(dFdt)
+        drdt
+        vec(dEdt)
+    ]
+    return dVdt
+end
 
 end # module MyScp
