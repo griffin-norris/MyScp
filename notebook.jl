@@ -517,16 +517,17 @@ function OCP(
 			)
 		end
 
+		# State & control set constraints
 		JuMP.@constraints(
 			mdl,
 			begin
-				x_nonscaled[k] == reshape(A_prop[:, k-1], params["n_states"], params["n_states"]) * x_nonscaled[k-1] 
-				+ reshape(B_prop[:, k-1], params["n_states"], params["n_controls"]) * u_nonscaled[k-1]
-				+ reshape(C_prop[:, k-1], params["n_states"], params["n_controls"]) * u_nonscaled[k]
-				+ z_prop[:, k-1]
-				+ nu[:, k-1]
+				x_nonscaled[k] <= params["max_state"]
+				x_nonscaled[k] >= params["min_state"]
+				u_nonscaled[k-1] <= params["max_control"]
+				u_nonscaled[k-1] >= params["min_control"]
 			end
 		)
+		
 	end
 
 	JuMP.@objective(mdl, Min, sum(cost_components))
