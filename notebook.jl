@@ -450,7 +450,7 @@ function OCP(
 		begin
 			t_fuel[1:params["n"]]
 			t_tr[1:params["n"]]
-			t_vc[1:params["n"]]
+			t_vc[1:n_x, 1:params["n"]]
 		end
 	)
 
@@ -492,8 +492,12 @@ function OCP(
 			end
 		)
 
-		# Add to cost
-        cost = (params["lam_fuel"] * t_fuel[k] + w_tr * t_tr[k] + t_vc[k])
+		# Weighted sum of cost components
+        cost = (
+			params["lam_fuel"] * t_fuel[k] 
+			+ w_tr * t_tr[k] 
+			+ params["lam_vc"] * sum(t_vc[:,k])
+		)
         push!(cost_components, cost)
 
 		# Dynamics constraints
