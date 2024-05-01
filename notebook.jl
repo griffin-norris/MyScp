@@ -374,6 +374,10 @@ function OCP(
 	params,
 )
 	mdl = JuMP.Model(ECOS.Optimizer)
+	A_prop = ones(n_x*n_x, params["n"])
+	B_prop = ones(n_x*n_u, params["n"])
+	C_prop = ones(n_x*n_u, params["n"])
+	z_prop = ones(n_x, params["n"])
 
 	# Parameters
 	# NOTE: the `Parameter` set must be set externally
