@@ -519,29 +519,11 @@ function PTR_subproblem(
 
     i_obs = 0
 
-    if params["dis_exact"]
-        A_bar, B_bar, C_bar, z_bar = calculate_discretization(x_bar, u_bar, A, B, obstacles, params)
-        JuMP.set_value(model[:A_d], A_bar)
-        JuMP.set_value(model[:B_d], B_bar)
-        JuMP.set_value(model[:C_d], C_bar)
-        JuMP.set_value(model[:z_d], z_bar)
-    else
-        for k in 2:params["n"]
-            A_d[:, params["n_states"] * (k - 2) + 1 : params["n_states"] * (k - 1)], B_d[:, params["n_controls"] * (k - 2) + 1 : params["n_controls"] * (k - 1)] = zoh_discretized_dynamics(params["dt_ss"], x_bar[:, k - 1], u_bar[:, k - 1], A, B)
-            x_prop[:, k - 1] = simulate_nonlinear(x_bar[:, k - 1], u_bar[:, k - 1], params, params["dt_ss"])
-        end
-        JuMP.set_value(model[:A_d], A_d)
-        JuMP.set_value(model[:B_d], B_d)
-        JuMP.set_value(model[:x_prop], x_prop)
-    end
-
-    if !params["ctcs"]
-        for obs in obstacles
-            JuMP.set_value(model[Symbol("g_bar_obs_", i_obs)], obs.g_bar_obs(x_bar[1:3, 2:end]))
-            JuMP.set_value(model[Symbol("grad_g_bar_obs_", i_obs)], obs.grad_g_bar_obs(x_bar[1:3, 2:end]))
-            i_obs += 1
-        end
-    end
+	A_bar, B_bar, C_bar, z_bar = calculate_discretization(x_bar, u_bar, A, B, obstacles, params)
+	JuMP.set_value(model[:A_d], A_bar)
+	JuMP.set_value(model[:B_d], B_bar)
+	JuMP.set_value(model[:C_d], C_bar)
+	JuMP.set_value(model[:z_d], z_bar)
 
     JuMP.set_value(model[:w_tr], params["w_tr"])
 
@@ -552,22 +534,12 @@ function PTR_subproblem(
 
     push!(J_tr_vec, norm(inv(params["S_x"]) * (x[:, 1] - x_bar[:, 1])))
     for k in 2:params["n"]
-        if !params["dis_exact"]
-            push!(J_vc_vec, sum(abs.(x[:, k] - x_prop[:, k - 1] - A_d[:, 13 * (k - 2) + 1 : 13 * (k - 1)] * (x[:, k - 1] - x_bar[:, k - 1]) - B_d[:, 6 * (k - 2) + 1 : 6 * (k - 1)] * (u[:, k - 1] - u_bar[:, k - 1]))))
-        end
         push!(J_tr_vec, norm(inv(blockdiag(params["S_x"], params["S_u"])) * (hcat(x[:, k], u[:, k - 1]) - hcat(x_bar[:, k], u_bar[:, k - 1]))))
 
         J_vb = 0
-        if !params["ctcs"]
-            for obs in obstacles
-                J_vb += max(0, (obs.g_bar_obs(x_bar[1:3, k]) + obs.grad_g_bar_obs(x_bar[1:3, k])' * (x[1:3, k] - x_bar[1:3, k]))[1])
-            end
-        end
         push!(J_vb_vec, J_vb)
-        if params["dis_exact"]
-            push!(J_vc_ctcs_vec, sum(abs.(value.(model[:nu])[params["n_states"] - params["n_obs"] + 1:end, k - 1])))
-            push!(J_vc_vec, sum(abs.(value.(model[:nu])[1:params["n_states"] - params["n_obs"], k - 1])))
-        end
+		push!(J_vc_ctcs_vec, sum(abs.(value.(model[:nu])[params["n_states"] - params["n_obs"] + 1:end, k - 1])))
+		push!(J_vc_vec, sum(abs.(value.(model[:nu])[1:params["n_states"] - params["n_obs"], k - 1])))
     end
 	return x, u, objective_value(model), J_vb_vec, J_vc_vec, J_tr_vec, J_vc_ctcs_vec
 end
@@ -1620,7 +1592,6 @@ version = "17.4.0+0"
 # ╠═7b9d4b5d-7dc9-42e1-8e4e-a7d1cd9a8249
 # ╠═a20dd084-9b66-457d-9d8c-c2848b69c9e5
 # ╟─96e560ce-386c-4b57-92c7-4595b9d8804a
-# ╠═fdc8208f-2e51-49aa-a398-570531b608e4
 # ╠═bb115df2-9f5b-402d-9a25-6c096d913d63
 # ╠═79facf78-a456-4b29-b18d-ae1dc23c0e6e
 # ╟─b522641d-cfb5-4dac-abf0-28ffe038ed14
