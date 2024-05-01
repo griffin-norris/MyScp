@@ -464,21 +464,31 @@ function OCP(
 			end
 		)
 
-		# Cost
+		# Running cost
+        JuMP.@constraint(
+			mdl, 
+			[
+				t_fuel[k]; 
+				inv(S_u) * u_nonscaled[k][:]
+			] in SecondOrderCone()
+		)
+
+		# Trust region cost
+        JuMP.@constraint(
+			mdl,
+			[
+				t_tr[k]; 
+				[inv(S_x) zeros(n_x, n_u); zeros(n_u, n_x) inv(S_u)] * [dx[:,k]; du[:,k]]
+			] in SecondOrderCone()
+		)
+
+		# Virtual control cost
+		# λ_vc ||ν||₁
         JuMP.@constraints(
 			mdl, 
 			begin
-				[
-					t_fuel[k]; 
-					u_nonscaled[k][:]
-				] in SecondOrderCone()
-				[
-					t_tr[k]; 
-					[inv(S_x) zeros(size(S_x, 1), size(S_u, 1));
-					zeros(size(S_u, 1), size(S_x, 1)) inv(S_u)] * [dx[:,k]; du[:,k]]
-				] in SecondOrderCone()
-				t_vc[k] - nu[k] >= 0
-				t_vc[k] + nu[k] >= 0
+				t_vc[:,k] >= -nu[:,k]
+				t_vc[:,k] >= nu[:,k]
 			end
 		)
 
