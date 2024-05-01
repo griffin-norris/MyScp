@@ -501,6 +501,22 @@ function OCP(
         push!(cost_components, cost)
 
 		# Dynamics constraints
+		Ak = reshape(A_prop[:, k-1], n_x, n_x)
+		Bk = reshape(B_prop[:, k-1], n_x, n_u)
+		Ck = reshape(C_prop[:, k-1], n_x, n_u)
+		for i in 1:n_x
+			JuMP.@constraint(
+				mdl, 
+				x_nonscaled[k][i] == sum([
+					sum(Ak[i,j] * x_nonscaled[k-1][j] for j in 1:n_x),
+					sum(Bk[i,j] * u_nonscaled[k-1][j] for j in 1:n_u),
+					sum(Ck[i,j] * u_nonscaled[k][j] for j in 1:n_u),
+					z_prop[i, k-1],
+					nu[i, k-1],
+				])
+			)
+		end
+
 		JuMP.@constraints(
 			mdl,
 			begin
