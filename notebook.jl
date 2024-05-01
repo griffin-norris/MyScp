@@ -551,6 +551,11 @@ params = Dict(
 	"initial_state" => zeros(3),
 	"final_state" => zeros(3),
 	"lam_fuel" => 1.0,
+	"lam_vc" => 1.0,
+	"max_state" => ones(3),
+	"min_state" => -ones(3),
+	"max_control" => ones(2),
+	"min_control" => -ones(2),
 )
 
 # ╔═╡ 7553603d-343b-4df1-955d-044736ba61e0
