@@ -374,6 +374,10 @@ function OCP(
 	params,
 )
 	mdl = JuMP.Model(ECOS.Optimizer)
+
+	n_x = params["n_states"]
+	n_u = params["n_controls"]
+
 	A_prop = ones(n_x*n_x, params["n"])
 	B_prop = ones(n_x*n_u, params["n"])
 	C_prop = ones(n_x*n_u, params["n"])
@@ -393,9 +397,9 @@ function OCP(
 	JuMP.@variables(
 		mdl,
 		begin
-			x[1:params["n_states"], 1:params["n"]], (start = 0)
-	        dx[1:params["n_states"], 1:params["n"]], (start = 0)
-	        x_bar[1:params["n_states"], 1:params["n"]], (start = 0)
+			x[1:n_x, 1:params["n"]], (start = 0)
+	        dx[1:n_x, 1:params["n"]], (start = 0)
+	        x_bar[1:n_x, 1:params["n"]], (start = 0)
 		end
 	)
 	
@@ -403,9 +407,9 @@ function OCP(
 	JuMP.@variables(
 		mdl,
 		begin
-	        u[1:params["n_controls"], 1:params["n"]], (start = 0)
-	        du[1:params["n_controls"], 1:params["n"]], (start = 0)
-			u_bar[1:params["n_controls"], 1:params["n"]], (start = 0)
+	        u[1:n_u, 1:params["n"]], (start = 0)
+	        du[1:n_u, 1:params["n"]], (start = 0)
+			u_bar[1:n_u, 1:params["n"]], (start = 0)
 		end
 	)
 	
@@ -414,7 +418,7 @@ function OCP(
 		mdl,
 		begin
 	        # Virtual control for linearized augmented dynamics constraints
-	        nu[1:params["n_states"], 1:params["n"] - 1], (start = 0)
+	        nu[1:n_x, 1:params["n"]], (start = 0)
 		end
 	)
 
@@ -433,13 +437,12 @@ function OCP(
 	end
 
 	# Boundary Constraints
-	n_states = params["n_states"]
 	n_obs = params["n_obs"]
 	JuMP.@constraints(
 		mdl, 
 		begin
-			x_nonscaled[1][1:n_states-n_obs] .== params["initial_state"] # Initial condition
-			x_nonscaled[end][1:n_states-n_obs] .== params["final_state"] # Terminal Condition
+			x_nonscaled[1][1:n_x-n_obs] .== params["initial_state"] # Initial condition
+			x_nonscaled[end][1:n_x-n_obs] .== params["final_state"] # Terminal Condition
 			x_nonscaled[1] - x_bar[:, 1] - dx[:, 1] .== 0 # Initial state error
 			u_nonscaled[1] - u_bar[:, 1] - du[:, 1] .== 0 # Initial control error
 		end
@@ -458,7 +461,7 @@ function OCP(
 		end
 	)
 
-	# Loop
+	# Loop over all timesteps
 	for k in (2:params["n"])
 		JuMP.@constraints(
 			mdl,
