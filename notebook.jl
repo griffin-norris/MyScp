@@ -300,6 +300,15 @@ md"""
 ## CTCS -- Continuous-Time Constraint Satisfaction
 """
 
+# ╔═╡ 9032dcfb-4804-4f06-932c-4f136d1021b8
+md"""
+$x^i, u^i \leftarrow \mathop{argmin}_{x, u, \nu} 
+\Bigg\{
+\lambda_{\text{cost}} \sum_{j=0}^{T} \|u_j^k\|_2 + \omega_{\text{tr}} \dots
+\Bigg\}$
+"""
+
+
 # ╔═╡ cdf8230b-5355-4ba9-924b-f2919ebec026
 function OCP(
 	params,
@@ -308,48 +317,31 @@ function OCP(
 
 	n_x = params["n_states"]
 	n_u = params["n_controls"]
+	n_obs = params["n_obs"]
 
-	A_prop = ones(n_x*n_x, params["n"])
-	B_prop = ones(n_x*n_u, params["n"])
-	C_prop = ones(n_x*n_u, params["n"])
-	z_prop = ones(n_x, params["n"])
-
-	# Parameters
-	# NOTE: the `Parameter` set must be set externally
+	# Parameters (set before solve)
 	JuMP.@variables(
 		mdl,
 		begin
-			# Trust region weight
-			w_tr in Parameter(1)
-		end
-	)
-
-	# State
-	JuMP.@variables(
-		mdl,
-		begin
-			x[1:n_x, 1:params["n"]], (start = 0)
-	        dx[1:n_x, 1:params["n"]], (start = 0)
-	        x_bar[1:n_x, 1:params["n"]], (start = 0)
-		end
-	)
-	
-	# Control
-	JuMP.@variables(
-		mdl,
-		begin
-	        u[1:n_u, 1:params["n"]], (start = 0)
-	        du[1:n_u, 1:params["n"]], (start = 0)
+			w_tr, (start = 0)							# Trust region weight
+			x_bar[1:n_x, 1:params["n"]], (start = 0)	# Previous trajectory
 			u_bar[1:n_u, 1:params["n"]], (start = 0)
+			A_prop[1:n_x*n_x, 1:params["n"]-1] 			# Propagation matrices
+			B_prop[1:n_x*n_u, 1:params["n"]-1]
+			C_prop[1:n_x*n_u, 1:params["n"]-1]
+			z_prop[1:n_x, 1:params["n"]-1]
 		end
 	)
-	
-	# Slack
+
+	# Variables
 	JuMP.@variables(
 		mdl,
 		begin
-	        # Virtual control for linearized augmented dynamics constraints
-	        nu[1:n_x, 1:params["n"]], (start = 0)
+			x[1:n_x, 1:params["n"]], (start = 0) 		# State
+	        dx[1:n_x, 1:params["n"]], (start = 0)
+	        u[1:n_u, 1:params["n"]], (start = 0)		# Control
+	        du[1:n_u, 1:params["n"]], (start = 0)
+	        nu[1:n_x, 1:params["n"]], (start = 0)		# Virtual control
 		end
 	)
 
@@ -368,7 +360,6 @@ function OCP(
 	end
 
 	# Boundary Constraints
-	n_obs = params["n_obs"]
 	JuMP.@constraints(
 		mdl, 
 		begin
@@ -492,8 +483,28 @@ params = Dict(
 	"min_control" => -ones(2),
 )
 
-# ╔═╡ 7553603d-343b-4df1-955d-044736ba61e0
-mdl = OCP(params)
+# ╔═╡ 45e89288-0cf3-4ff5-924e-d5e580a797c7
+model = OCP(params)
+
+# ╔═╡ 9ad6f25a-aeba-419e-a78d-9ef4c0f278ac
+begin
+	n_x = params["n_states"]
+	n_u = params["n_controls"]
+	n_obs = params["n_obs"]
+	A_bar = zeros(n_x*n_x, params["n"]-1)
+	for k in 1:params["n"]-1
+		A_bar[:, k] = vec(I(3))
+	end
+	
+	B_bar = vec([1.0 0.0; 0.0 1.0; 0.0 0.0])
+	JuMP.fix(model[:A_prop], A_bar)
+	JuMP.fix(model[:B_prop], B_bar)
+	JuMP.fix(model[:C_prop], C_bar)
+	JuMP.fix(model[:z_prop], z_bar)
+end
+
+# ╔═╡ f1b611d0-d110-48d4-aa52-ec8039ccdfec
+JuMP.optimize!(model)
 
 # ╔═╡ 4c4e04ba-1ab4-43d9-858d-b2108ab596a2
 function PTR_subproblem(
@@ -514,18 +525,18 @@ function PTR_subproblem(
     B_d = zeros(params["n_states"], params["n_controls"] * params["n"] - 1)
     x_prop = zeros(params["n_states"], params["n"] - 1)
 
-    JuMP.set_value(model[:x_bar], x_bar)
-    JuMP.set_value(model[:u_bar], u_bar)
+    JuMP.fix(model[:x_bar], x_bar)
+    JuMP.fix(model[:u_bar], u_bar)
 
     i_obs = 0
 
 	A_bar, B_bar, C_bar, z_bar = calculate_discretization(x_bar, u_bar, A, B, obstacles, params)
-	JuMP.set_value(model[:A_d], A_bar)
-	JuMP.set_value(model[:B_d], B_bar)
-	JuMP.set_value(model[:C_d], C_bar)
-	JuMP.set_value(model[:z_d], z_bar)
+	JuMP.fix(model[:A_prop], A_bar)
+	JuMP.fix(model[:B_prop], B_bar)
+	JuMP.fix(model[:C_prop], C_bar)
+	JuMP.fix(model[:z_prop], z_bar)
 
-    JuMP.set_value(model[:w_tr], params["w_tr"])
+    JuMP.fix(model[:w_tr], params["w_tr"])
 
     optimize!(model)
 
@@ -1597,9 +1608,12 @@ version = "17.4.0+0"
 # ╟─b522641d-cfb5-4dac-abf0-28ffe038ed14
 # ╟─299dd5b6-a211-4c2a-9e65-b9a80664cd10
 # ╟─0480ce3a-8763-4ece-8e9b-b931874e9f38
+# ╟─9032dcfb-4804-4f06-932c-4f136d1021b8
 # ╠═cdf8230b-5355-4ba9-924b-f2919ebec026
 # ╠═57b1dbeb-4365-4a7d-9f9b-ddf18067cac5
-# ╠═7553603d-343b-4df1-955d-044736ba61e0
+# ╠═45e89288-0cf3-4ff5-924e-d5e580a797c7
+# ╠═9ad6f25a-aeba-419e-a78d-9ef4c0f278ac
+# ╠═f1b611d0-d110-48d4-aa52-ec8039ccdfec
 # ╠═4c4e04ba-1ab4-43d9-858d-b2108ab596a2
 # ╠═4073f275-589c-465c-a8c2-2b3f99a2c27b
 # ╟─00000000-0000-0000-0000-000000000001
