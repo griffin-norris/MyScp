@@ -1,123 +1,191 @@
-"""
-    Describes generic optimization problem:
+import JuMP as jp
 
-                            1
-        min. [ϕ(x(t), p) + ∫  Γ(x(t), u(t), p)dt]
-        u,p                 0
+export LinearizedDiscretizedFohSystem, Trajectory
 
-        s.t     ̇x(t) = f(t, x(t), u(t), p),     Dynamics
-                (x(t), p) ∈ X,                  State constraints
-                (u(t), p) ∈ U,                  Input constraints
-                s(t, x(t), u(t), p) ≤ 0,        State inequality constraints
-                g₀(x(0), p) = 0,                Initial conditions
-                g₁(x(1), p) = 0,                Terminal condition
-"""
-mutable struct OptimizationProblem
-    # ..:: Dimensions ::..
-    N::Int      # Nodes
-    nx::Int     # State
-    nu::Int     # Input
-    np::Int     # Parameters
-    # ..:: Cost ::..
-    ϕ::Func     # Terminal cost
-    Γ::Func     # Running cost
-    # ..:: Dynamics ::..
-    f::Func     # Continuous dynamics
-    A::Func     # ∇x f(t, ̄x(t), ̄u(t), ̄p)
-    B::Func     # ∇u f(t, ̄x(t), ̄u(t), ̄p)
-    F::Func     # ∇p f(t, ̄x(t), ̄u(t), ̄p)
-    r::Func     # r(t) = f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p
-    # ..:: Constraints ::..
-    X::Func     # (x(t), p) ∈ X
-    U::Func     # (u(t), p) ∈ U
-    s::Func     # s(t, x(t), u(t), p) ≤ 0
-    C::Func     # ∇x s(t, ̄x(t), ̄u(t), ̄p)
-    D::Func     # ∇u s(t, ̄x(t), ̄u(t), ̄p)
-    G::Func     # ∇p s(t, ̄x(t), ̄u(t), ̄p)
-    r′::Func    # r′(t) ≔ s(t, ̄x(t), ̄u(t), ̄p) - C*̄x(t) - D*̄u(t) - G*̄p
-    # ..:: Boundary conditions ::..
-    g₀::Func    # Initial condition
-    g₁::Func    # Terminal condition
-    H₀::Func    # ∇x g₀(̄x(0), ̄p)
-    K₀::Func    # ∇u g₀(̄x(0), ̄p)
-    ℓ₀::Func    # g₀(̄x(0), ̄p) - H₀*̄x(0) - K₀*̄p
-    H₁::Func    # ∇x g₁(̄x(1), ̄p)
-    K₁::Func    # ∇u g₁(̄x(1), ̄p)
-    ℓ₁::Func    # g₁(̄x(1), ̄p) - H₁*̄x(1) - K₁*̄p
+mutable struct LinearizedDiscretizedFohSystem
+    A_vectors
+    B_vectors
+    C_vectors
+    z_vectors
 end
 
-# ̇x(t)      = A*x(t) + B*u(t) + F*p + r(t) + E*ν(t)
-# r(t)      = f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p
-# ⇒ ̇x(t)    = A*x(t) + B*u(t) + F*p + f(t, ̄x(t), ̄u(t), ̄p) - A*̄x(t) - B*̄u(t) - F*̄p + E*ν(t)
-#           = A(x - ̄x) + B(u - ̄u) + F(p - ̄p) + f(t, ̄x, ̄u, ̄p) + E*ν
-#           ↑
-#           First order Taylor series approximation of f(t, x, u, p) 
-#           around previous trajectory (̄x, ̄u, ̄p)
+mutable struct Trajectory
+    x_bar
+    u_bar
+end
 
-# xₖ₊₁  = Aₖ*xₖ + Bₖ*uₖ +Fₖ*pₖ + rₖ + Eₖ*νₖ
+export linterp, OCP
 
-"""
-    Empty constructor for OptimizationProblem
-"""
-function OptimizationProblem()::OptimizationProblem
-    # ..:: Dimensions ::..
-    N = 0
-    nx = 0
-    nu = 0
-    np = 0
-    # ..:: Cost ::..
-    ϕ = nothing
-    Γ = nothing
-    # ..:: Dynamics ::..
-    f = nothing
-    A = nothing
-    B = nothing
-    F = nothing
-    r = nothing
-    # ..:: Constraints ::..
-    X = nothing
-    U = nothing
-    s = nothing
-    C = nothing
-    D = nothing
-    G = nothing
-    r′ = nothing
-    # ..:: Boundary conditions ::..
-    g₀ = nothing
-    g₁ = nothing
-    H₀ = nothing
-    K₀ = nothing
-    ℓ₀ = nothing
-    H₁ = nothing
-    K₁ = nothing
-    ℓ₁ = nothing
+function linterp(nodes, init, final)
+    linear = [init .+ k * (final .- init) / (nodes - 1) for k in 0:nodes-1]
+    return hcat(linear...)
+end
 
-    return OptimizationProblem(
-        N,
-        nx,
-        nu,
-        np,
-        ϕ,
-        Γ,
-        f,
-        A,
-        B,
-        F,
-        r,
-        X,
-        U,
-        s,
-        C,
-        D,
-        G,
-        r′,
-        g₀,
-        g₁,
-        H₀,
-        K₀,
-        ℓ₀,
-        H₁,
-        K₁,
-        ℓ₁,
+function OCP(
+    params,
+    sys::LinearizedDiscretizedFohSystem,
+    traj_prev::Trajectory;
+    verbose=false
+)
+
+    N = params[:n_nodes]
+    n_x = params[:n_x]
+    n_x_aug = params[:n_x_aug]
+    n_u = params[:n_u]
+    S_x = params[:S_x]
+    c_x = params[:c_x]
+    S_u = params[:S_u]
+    c_u = params[:c_u]
+
+    model = jp.Model(ECOS.Optimizer)
+    set_optimizer_attribute(model, "verbose", 0)
+
+    # Variables
+    (
+        model[:x],
+        model[:dx],
+        model[:u],
+        model[:du],
+        model[:nu],
+    ) = jp.@variables(
+        model,
+        begin
+            x[1:n_x_aug, 1:N], (start = 0) # State
+            dx[1:n_x_aug, 1:N], (start = 0)
+            u[1:n_u, 1:N], (start = 0) # Control
+            du[1:n_u, 1:N], (start = 0)
+            nu[1:n_x_aug, 1:N-1], (start = 0) # Virtual control
+        end
     )
+
+    x_nonscaled = []
+    u_nonscaled = []
+
+    for k in (1:N)
+        push!(x_nonscaled, S_x * x[:, k] + c_x)
+        push!(u_nonscaled, S_u * u[:, k] + c_u)
+    end
+
+    # Boundary constraints
+    model[Symbol("constraint_bc")] = jp.@constraints(
+        model,
+        begin
+            x_nonscaled[1][1:n_x] .== params[:x_initial] # Initial condition
+            x_nonscaled[end][1:n_x] .== params[:x_final] # Terminal Condition
+        end
+    )
+
+    # Dynamics constraints
+    for k in 1:N-1
+        model[Symbol("constraint_dynamics_$(k)")] = jp.@constraint(
+            model,
+            reshape(sys.A_vectors[:, k], n_x_aug, n_x_aug) * x_nonscaled[k]
+            + reshape(sys.B_vectors[:, k], n_x_aug, n_u) * u_nonscaled[k]
+            + reshape(sys.C_vectors[:, k], n_x_aug, n_u) * u_nonscaled[k+1]
+            + sys.z_vectors[:, k]
+            + nu[:, k] == x_nonscaled[k+1]
+        )
+    end
+
+    # CTCS constraint
+    for k in 2:N
+        model[Symbol("constraint_ctcs_$(k)")] = jp.@constraints(
+            model,
+            begin
+                x_nonscaled[k][end] - x_nonscaled[k-1][end] <= 1e-4
+                x_nonscaled[k-1][end] - x_nonscaled[k][end] <= 1e-4
+            end
+        )
+    end
+
+    # State constraints
+    for k in 2:N
+        model[Symbol("constraint_x_$(k)")] = jp.@constraints(
+            model,
+            begin
+                x_nonscaled[k] <= params[:x_max]
+                x_nonscaled[k] >= params[:x_min]
+            end
+        )
+    end
+
+    # Control constraints
+    for k in 1:N
+        model[Symbol("constraint_u_$(k)")] = jp.@constraints(
+            model,
+            begin
+                u_nonscaled[k] <= params[:u_max]
+                u_nonscaled[k] >= params[:u_min]
+            end
+        )
+    end
+
+    # State and control deltas
+    for k in 1:N
+        model[Symbol("constraint_deltas_$(k)")] = jp.@constraints(
+            model,
+            begin
+                inv(S_x) * (x_nonscaled[k] - traj_prev.x_bar[:, k] - dx[:, k]) .== 0
+                inv(S_u) * (u_nonscaled[k] - traj_prev.u_bar[:, k] - du[:, k]) .== 0
+            end
+        )
+    end
+
+    # Define extra variable for trick to model virtual control cost
+    # 	||x||₁ = ∑ᵢ|xᵢ| -> NormOneCone
+    model[:t_vc] = jp.@variable(model, t_vc[1:N-1], (start = 0))
+    for k in 1:N-1
+        model[Symbol("constraint_vc_$(k)")] = jp.@constraint(model, [t_vc[k]; nu[1:n_x, k]] in MOI.NormOneCone(1 + length(nu[1:n_x, k])))
+    end
+    model[:t_vc_ctcs] = jp.@variable(model, t_vc_ctcs[1:N-1], (start = 0))
+    for k in 1:N-1
+        model[Symbol("constraint_vc_ctcs_$(k)")] = jp.@constraint(model, [t_vc_ctcs[k]; nu[end, k]] in MOI.NormOneCone(1 + length(nu[end, k])))
+    end
+
+    # Cost 
+    model[:Objective] = jp.@objective(
+        model,
+        Min,
+        params[:λ_fuel] * sum(
+            [transpose(inv(S_u) * u) * I(n_u) * (inv(S_u) * u) for (k, u) in enumerate(u_nonscaled)]
+        )
+        + params[:w_tr] * sum(
+            [transpose(
+                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k]]
+             ) * I(n_x_aug + n_u) * (
+                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k]]
+             ) for k in 1:N]
+        )
+        + params[:λ_vc] * sum(t_vc)
+        + params[:λ_vc_ctcs] * sum(t_vc_ctcs)
+    )
+
+    if verbose
+        println(" === Objective Function")
+        display(jp.objective_function(model))
+
+        println(" === Constraints Dynamics")
+        for k in 1:N-1
+            display(model[Symbol("constraint_dynamics_$(k)")])
+        end
+
+        println(" === Constraints State & Control Deltas")
+        for k in 1:N
+            display(model[Symbol("constraint_deltas_$(k)")])
+        end
+
+        println(" === Constraints CTCS")
+        for k in 2:N
+            display(model[Symbol("constraint_ctcs_$(k)")])
+        end
+
+        println(" === Constraints VC")
+        for k in 1:N-1
+            display(model[Symbol("constraint_vc_$(k)")])
+            display(model[Symbol("constraint_vc_ctcs_$(k)")])
+        end
+
+    end
+
+    return model
 end

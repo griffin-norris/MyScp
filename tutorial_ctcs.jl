@@ -351,22 +351,32 @@ function OCP(
 	S_u = params["S_u"]
 	c_u = params["c_u"]
 
-	x_nonscaled = []
-	u_nonscaled = []
+	# x_nonscaled = []
+	# u_nonscaled = []
 
-	for k in (1:params["n"])
-		push!(x_nonscaled, S_x * x[:,k] + c_x)
-		push!(u_nonscaled, S_u * u[:,k] + c_u)
+	# for k in (1:params["n"])
+	# 	push!(x_nonscaled, S_x * x[:,k] + c_x)
+	# 	push!(u_nonscaled, S_u * u[:,k] + c_u)
+	# end
+
+	JuMP.@variable(mdl, x_nonscaled[1:n_x, 1:params["n"]])
+	JuMP.@variable(mdl, u_nonscaled[1:n_u, 1:params["n"]])
+
+	for k in 1:params["n"]
+		x_nonscaled[:, k] = S_x * x[:,k] + c_x
+		u_nonscaled[:, k] = S_u * u[:,k] + c_u
 	end
+
+	print(x_nonscaled[:, 1])
 
 	# Boundary Constraints
 	JuMP.@constraints(
 		mdl, 
 		begin
-			x_nonscaled[1][1:n_x-n_obs] .== params["initial_state"] # Initial condition
-			x_nonscaled[end][1:n_x-n_obs] .== params["final_state"] # Terminal Condition
-			x_nonscaled[1] - x_bar[:, 1] - dx[:, 1] .== 0 # Initial state error
-			u_nonscaled[1] - u_bar[:, 1] - du[:, 1] .== 0 # Initial control error
+			x_nonscaled[1:n_x-n_obs, 1] .== params["initial_state"] # Initial condition
+			x_nonscaled[1:n_x-n_obs, end] .== params["final_state"] # Terminal Condition
+			x_nonscaled[:, 1] - x_bar[:, 1] - dx[:, 1] .== 0 # Initial state error
+			u_nonscaled[:, 1] - u_bar[:, 1] - du[:, 1] .== 0 # Initial control error
 		end
 	)
 
@@ -388,8 +398,8 @@ function OCP(
 		JuMP.@constraints(
 			mdl,
 			begin
-				inv(S_x) * (x_nonscaled[k] - x_bar[:, k] - dx[:, k]) .== 0
-				inv(S_u) * (u_nonscaled[k] - u_bar[:, k] - du[:, k]) .== 0
+				inv(S_x) * (x_nonscaled[:, k] - x_bar[:, k] - dx[:, k]) .== 0
+				inv(S_u) * (u_nonscaled[:, k] - u_bar[:, k] - du[:, k]) .== 0
 			end
 		)
 
@@ -398,7 +408,7 @@ function OCP(
 			mdl, 
 			[
 				t_fuel[k]; 
-				inv(S_u) * u_nonscaled[k][:]
+				inv(S_u) * u_nonscaled[:, k]
 			] in SecondOrderCone()
 		)
 
@@ -436,10 +446,10 @@ function OCP(
 		for i in 1:n_x
 			JuMP.@constraint(
 				mdl, 
-				x_nonscaled[k][i] == sum([
-					sum(Ak[i,j] * x_nonscaled[k-1][j] for j in 1:n_x),
-					sum(Bk[i,j] * u_nonscaled[k-1][j] for j in 1:n_u),
-					sum(Ck[i,j] * u_nonscaled[k][j] for j in 1:n_u),
+				x_nonscaled[i, k] == sum([
+					sum(Ak[i,j] * x_nonscaled[j, k-1] for j in 1:n_x),
+					sum(Bk[i,j] * u_nonscaled[j, k-1] for j in 1:n_u),
+					sum(Ck[i,j] * u_nonscaled[j, k] for j in 1:n_u),
 					z_prop[i, k-1],
 					nu[i, k-1],
 				])
@@ -450,10 +460,10 @@ function OCP(
 		JuMP.@constraints(
 			mdl,
 			begin
-				x_nonscaled[k] <= params["max_state"]
-				x_nonscaled[k] >= params["min_state"]
-				u_nonscaled[k-1] <= params["max_control"]
-				u_nonscaled[k-1] >= params["min_control"]
+				x_nonscaled[:, k] <= params["max_state"]
+				x_nonscaled[:, k] >= params["min_state"]
+				u_nonscaled[:, k-1] <= params["max_control"]
+				u_nonscaled[:, k-1] >= params["min_control"]
 			end
 		)
 		
@@ -487,24 +497,24 @@ params = Dict(
 model = OCP(params)
 
 # ╔═╡ 9ad6f25a-aeba-419e-a78d-9ef4c0f278ac
-begin
-	n_x = params["n_states"]
-	n_u = params["n_controls"]
-	n_obs = params["n_obs"]
-	A_bar = zeros(n_x*n_x, params["n"]-1)
-	for k in 1:params["n"]-1
-		A_bar[:, k] = vec(I(3))
-	end
+# begin
+# 	n_x = params["n_states"]
+# 	n_u = params["n_controls"]
+# 	n_obs = params["n_obs"]
+# 	A_bar = zeros(n_x*n_x, params["n"]-1)
+# 	for k in 1:params["n"]-1
+# 		A_bar[:, k] = vec(I(3))
+# 	end
 	
-	B_bar = vec([1.0 0.0; 0.0 1.0; 0.0 0.0])
-	JuMP.fix(model[:A_prop], A_bar)
-	JuMP.fix(model[:B_prop], B_bar)
-	JuMP.fix(model[:C_prop], C_bar)
-	JuMP.fix(model[:z_prop], z_bar)
-end
+# 	B_bar = vec([1.0 0.0; 0.0 1.0; 0.0 0.0])
+# 	JuMP.fix(model[:A_prop], A_bar)
+# 	JuMP.fix(model[:B_prop], B_bar)
+# 	JuMP.fix(model[:C_prop], C_bar)
+# 	JuMP.fix(model[:z_prop], z_bar)
+# end
 
 # ╔═╡ f1b611d0-d110-48d4-aa52-ec8039ccdfec
-JuMP.optimize!(model)
+# JuMP.optimize!(model)
 
 # ╔═╡ 4c4e04ba-1ab4-43d9-858d-b2108ab596a2
 function PTR_subproblem(
