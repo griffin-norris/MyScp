@@ -58,7 +58,7 @@ w_tr = 1e2
 scale = max(w_tr, λ_fuel, λ_vc, λ_vc_ctcs)
 
 total_time = 10.0
-dt_ss = 1.0
+dt_ss = 0.5
 dt_sim = 0.05
 
 n_nodes = Int(total_time / dt_ss) + 1
@@ -110,6 +110,7 @@ velocities = result[:x][4:6, :]
 # plotlyjs()
 
 p = plot(layout=(3, 2), size=(1600, 1000))
+
 plot!(
     p[1],
     result[:x][1:3, :]',
@@ -117,7 +118,11 @@ plot!(
         1.2 * minimum(params[:x_min][1:3]),
         1.2 * maximum(params[:x_max][1:3]),
     ),
+    title="Position (Inertial Frame)",
+    ylabel="Values",
+    label=["px" "py" "pz"]
 )
+
 plot!(
     p[3],
     result[:x][4:6, :]',
@@ -125,7 +130,11 @@ plot!(
     #     1.2 * minimum(params[:x_min][4:6]),
     #     1.2 * maximum(params[:x_max][4:6]),
     # ),
+    title="Velocity (Inertial Frame)",
+    ylabel="Values",
+    label=["vx" "vy" "vz"]
 )
+
 plot!(
     p[2],
     result[:x][7:10, :]',
@@ -133,7 +142,11 @@ plot!(
         1.2 * minimum(params[:x_min][7:10]),
         1.2 * maximum(params[:x_max][7:10]),
     ),
+    title="Quaternion",
+    ylabel="Values",
+    label=["qw" "qx" "qy" "qz"]
 )
+
 plot!(
     p[4],
     result[:x][11:13, :]',
@@ -141,7 +154,11 @@ plot!(
         1.2 * minimum(params[:x_min][11:13]),
         1.2 * maximum(params[:x_max][11:13]),
     ),
+    title="Rotation Rate (Body Frame)",
+    ylabel="Values",
+    label=["ω1" "ω2" "ω3"]
 )
+
 plot!(
     p[5],
     result[:u][1:3, :]',
@@ -149,7 +166,11 @@ plot!(
     #     1.2 * minimum(params[:u_min][1:3]),
     #     1.2 * maximum(params[:u_max][1:3]),
     # ),
+    title="Force (Body Frame)",
+    ylabel="Values",
+    label=["Fb1" "Fb2" "Fb3"]
 )
+
 plot!(
     p[6],
     result[:u][4:6, :]',
@@ -157,6 +178,9 @@ plot!(
     #     1.2 * minimum(params[:u_min][4:6]),
     #     1.2 * maximum(params[:u_max][4:6]),
     # ),
+    title="Torque (Body Frame)",
+    ylabel="Values",
+    label=["τ1" "τ2" "τ3"]
 )
 
 # Display the plot
