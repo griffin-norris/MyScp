@@ -149,12 +149,13 @@ function OCP(
         params[:λ_fuel] * sum(
             [transpose(inv(S_u) * u) * I(n_u) * (inv(S_u) * u) for (k, u) in enumerate(u_nonscaled)]
         )
+        + params[:w_tr] * transpose(inv(S_x) * dx[:, 1]) * I(n_x_aug) * (inv(S_x) * dx[:, 1])
         + params[:w_tr] * sum(
             [transpose(
-                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k]]
+                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k-1]]
              ) * I(n_x_aug + n_u) * (
-                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k]]
-             ) for k in 1:N]
+                 [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * [dx[:, k]; du[:, k-1]]
+             ) for k in 2:N]
         )
         + params[:λ_vc] * sum(t_vc)
         + params[:λ_vc_ctcs] * sum(t_vc_ctcs)
