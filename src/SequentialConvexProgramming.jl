@@ -77,7 +77,7 @@ function ctcs_main(params)
     u_bar = linterp(params[:n_nodes], u_guess, u_guess)
 
     obstacles = []
-    for k in params[:n_obs]
+    for k in 1:params[:n_obs]
         push!(
             obstacles,
             EllipsoidalObstacle(
