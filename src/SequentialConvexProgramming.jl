@@ -44,14 +44,18 @@ function ctcs_subproblem(x_bar, u_bar, f_aug, A_aug, B_aug, params; verbose=fals
     J_vc = sum(norm(nu[1:n_x, k], 1) for k in size(nu, 2))
     J_vc_ctcs = sum(norm(nu[end, k], 1) for k in size(nu, 2))
     J_tr = params[:w_tr] * sum(
-        # norm(
-        #     inv([S_x zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) S_u]) * ([x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]]), 2
-        # ) for k in 2:N
+    # norm(
+    #     inv(
+    #         [S_x zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) S_u]
+    #     ) * (
+    #         [x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]]
+    #     ), 2
+    # ) for k in 2:N
         [transpose(
-            [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * ([x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]])
-        ) * I(n_x_aug + n_u) * (
-            [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * ([x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]])
-        ) for k in 2:N]
+             [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * ([x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]])
+         ) * I(n_x_aug + n_u) * (
+             [inv(S_x) zeros(n_x_aug, n_u); zeros(n_u, n_x_aug) inv(S_u)] * ([x[:, k]; u[:, k-1]] - [x_bar[:, k]; u_bar[:, k-1]])
+         ) for k in 2:N]
     )
 
     if verbose
@@ -74,7 +78,7 @@ function ctcs_main(params)
     obstacles = []
     for k in params[:n_obs]
         push!(
-            obstacles, 
+            obstacles,
             EllipsoidalObstacle(
                 params[:obstacle_centers][k],
                 params[:obstacle_axes][k],
