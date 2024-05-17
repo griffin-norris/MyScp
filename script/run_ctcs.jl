@@ -106,8 +106,8 @@ positions = result[:x][1:3, :]
 velocities = result[:x][4:6, :]
 
 
-# Create plots
-# plotlyjs()
+# Create Plots
+gr()
 
 p = plot(layout=(3, 2), size=(1600, 1000))
 
@@ -197,22 +197,33 @@ plot!(
 # Display the plot
 display(p)
 
-# p3d = plot3d(size=(1600, 1000))
-# plot!(
-#     p3d,
-#     result[:x][1, :],
-#     result[:x][2, :],
-#     result[:x][3, :],
-#     title="3D Trajectory Plot",
-#     xlabel="X Position",
-#     ylabel="Y Position",
-#     zlabel="Z Position",
-#     legend=false,
-#     linewidth=2,
-#     marker=:circle,
-#     ylims=(params[:x_min][2], params[:x_max][2]),
-#     zlims=(params[:x_min][3], params[:x_max][3]),
-# )
+
+plotlyjs()
+p3d = plot3d(size=(1600, 1000))
+plot!(
+    p3d,
+    result[:x][1, :],
+    result[:x][2, :],
+    result[:x][3, :],
+    title="3D Trajectory Plot",
+    xlabel="X Position",
+    ylabel="Y Position",
+    zlabel="Z Position",
+    legend=false,
+    linewidth=2,
+    marker=:circle,
+    ylims=(params[:x_min][2], params[:x_max][2]),
+    zlims=(params[:x_min][3], params[:x_max][3]),
+)
+for x_hist in result[:x_hist]
+    plot!(
+        p3d,
+        x_hist[1, :],
+        x_hist[2, :],
+        x_hist[3, :],
+        alpha=1.0,
+    )
+end
 
 # # Display the plot
 # display(p3d)
