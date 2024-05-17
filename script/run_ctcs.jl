@@ -84,6 +84,7 @@ params = Dict(
     :c_x => c_x,
     :c_u => c_u,
     :w_tr => w_tr / scale,
+    :w_tr_adapt_factor => 1.1,
     :λ_fuel => λ_fuel / scale,
     :λ_vc => λ_vc / scale,
     :λ_vc_ctcs => λ_vc_ctcs / scale,

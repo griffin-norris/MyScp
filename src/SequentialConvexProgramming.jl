@@ -116,7 +116,7 @@ function ctcs_main(params)
         push!(x_hist, x)
         push!(u_hist, u)
 
-        params[:w_tr] = params[:w_tr] * 1.1
+        params[:w_tr] = params[:w_tr] * params[:w_tr_adapt_factor]
 
         @printf("%4d | %.1e | %.1e | %.1e | %.1e\n", k, J_total, J_tr, J_vc, J_vc_ctcs)
         k += 1
