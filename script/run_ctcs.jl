@@ -106,6 +106,7 @@ positions = result[:x][1:3, :]
 velocities = result[:x][4:6, :]
 
 
+n_iterations = length(result[:x_hist])
 # Create Plots
 gr()
 
@@ -197,9 +198,67 @@ plot!(
 # Display the plot
 display(p)
 
-
 plotlyjs()
-p3d = plot3d(size=(1600, 1000))
+p3d = plot3d(
+    size=(1600, 1000),
+    palette=palette(:inferno, 1:n_iterations+1, rev=true),
+)
+
+
+# Define function to generate ellipsoid points
+function generate_ellipsoid_points(center, radii, axes, n=40)
+    u = range(0, stop=2π, length=n)
+    v = range(0, stop=π, length=n)
+    
+    x = [1/radii[1] * cos(ui) * sin(vi) for ui in u, vi in v]
+    y = [1/radii[2] * sin(ui) * sin(vi) for ui in u, vi in v]
+    z = [1/radii[3] * cos(vi) for ui in u, vi in v]
+
+    points = [x[:] y[:] z[:]]'
+    rotated_points = axes * points
+    translated_points = rotated_points .+ center
+
+    X = reshape(translated_points[1, :], n, n)
+    Y = reshape(translated_points[2, :], n, n)
+    Z = reshape(translated_points[3, :], n, n)
+    
+    return X, Y, Z
+end
+
+obstacles = []
+for k in 1:params[:n_obs]
+    push!(
+        obstacles,
+        EllipsoidalObstacle(
+            params[:obstacle_centers][k],
+            params[:obstacle_axes][k],
+            params[:obstacle_radius][k],
+        )
+    )
+end
+
+# Plot ellipsoidal obstacles
+for obs in obstacles
+    X, Y, Z = generate_ellipsoid_points(obs.center, obs.radius, obs.axes)
+    plot!(
+        p3d,
+        X, Y, Z,
+        seriestype=:surface,
+        opacity=0.5,
+        legend=false,
+    )
+end
+
+for (i, x_hist) in enumerate(result[:x_hist])
+    plot!(
+        p3d,
+        x_hist[1, :],
+        x_hist[2, :],
+        x_hist[3, :],
+        alpha=1.0,
+        linewidth=1,
+    )
+end
 plot!(
     p3d,
     result[:x][1, :],
@@ -210,20 +269,11 @@ plot!(
     ylabel="Y Position",
     zlabel="Z Position",
     legend=false,
-    linewidth=2,
-    marker=:circle,
+    linewidth=1,
+    # marker=:circle,
     ylims=(params[:x_min][2], params[:x_max][2]),
     zlims=(params[:x_min][3], params[:x_max][3]),
 )
-for x_hist in result[:x_hist]
-    plot!(
-        p3d,
-        x_hist[1, :],
-        x_hist[2, :],
-        x_hist[3, :],
-        alpha=1.0,
-    )
-end
 
 # TODO: plot cost in log scale over nodes 
 

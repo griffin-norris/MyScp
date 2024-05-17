@@ -130,6 +130,7 @@ function ctcs_main(params)
         :x_full => x_full,
         :x_hist => x_hist,
         :u_hist => u_hist,
+        :iterations => k,
     )
 
     return result
