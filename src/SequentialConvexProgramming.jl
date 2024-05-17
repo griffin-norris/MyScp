@@ -41,8 +41,8 @@ function ctcs_subproblem(x_bar, u_bar, f_aug, A_aug, B_aug, params; verbose=fals
 
     nu = jp.value.(model[:nu])
 
-    J_vc = sum(norm(nu[1:n_x, k], 1) for k in size(nu, 2))
-    J_vc_ctcs = sum(norm(nu[end, k], 1) for k in size(nu, 2))
+    J_vc = params[:λ_vc] *sum(norm(nu[1:n_x, k], 1) for k in size(nu, 2))
+    J_vc_ctcs = params[:λ_vc_ctcs] * sum(norm(nu[end, k], 1) for k in size(nu, 2))
     J_tr = params[:w_tr] * sum(
     # norm(
     #     inv(
