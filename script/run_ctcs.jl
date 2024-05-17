@@ -58,7 +58,7 @@ w_tr = 1e2
 scale = max(w_tr, λ_fuel, λ_vc, λ_vc_ctcs)
 
 total_time = 10.0
-dt_ss = 0.5
+dt_ss = 1.0
 dt_sim = 0.05
 
 n_nodes = Int(total_time / dt_ss) + 1
