@@ -92,6 +92,9 @@ function ctcs_main(params)
     x = copy(x_bar)
     u = copy(u_bar)
 
+    x_hist = [copy(x)]
+    u_hist = [copy(u)]
+
     println("")
     println("Iter | J_total |  J_tr   |  J_vc   | J_vc_ctcs ")
     println("----------------------------------------------")
@@ -109,6 +112,9 @@ function ctcs_main(params)
         x_bar = x
         u_bar = u
 
+        push!(x_hist, x)
+        push!(u_hist, u)
+
         params[:w_tr] = params[:w_tr] * 1.1
 
         @printf("%4d | %.1e | %.1e | %.1e | %.1e\n", k, J_total, J_tr, J_vc, J_vc_ctcs)
@@ -121,6 +127,8 @@ function ctcs_main(params)
         :x => x,
         :u => u,
         :x_full => x_full,
+        :x_hist => x_hist,
+        :u_hist => u_hist,
     )
 
     return result
