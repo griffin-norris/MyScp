@@ -37,7 +37,7 @@ function OCP(
     S_u = params[:S_u]
     c_u = params[:c_u]
 
-    model = jp.Model(ECOS.Optimizer)
+    model = jp.Model(OSQP.Optimizer)
     set_optimizer_attribute(model, "verbose", 0)
 
     # Variables

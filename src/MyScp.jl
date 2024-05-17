@@ -1,6 +1,6 @@
 module MyScp
 
-using JuMP, ECOS
+using JuMP, OSQP
 using LinearAlgebra
 
 include("Utils.jl")
