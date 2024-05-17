@@ -111,6 +111,17 @@ velocities = result[:x][4:6, :]
 
 p = plot(layout=(3, 2), size=(1600, 1000))
 
+# Plot the history of trajectory iterations
+for x_hist in result[:x_hist]
+    plot!(
+        p[1],
+        x_hist[1:3, :]',
+        alpha=0.3,
+        linewidth=1,
+        label=false
+    )
+end
+
 plot!(
     p[1],
     result[:x][1:3, :]',
