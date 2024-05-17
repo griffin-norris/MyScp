@@ -71,6 +71,7 @@ function ctcs_main(params)
 
     # TODO: kind of disgusting augmentation of x here
     x_bar = linterp(params[:n_nodes], [params[:x_initial]; 0.0], [params[:x_final]; 0.0])
+    # TODO: do finite differencing on position to get velocity
     u_guess = zeros(params[:n_u])
     u_guess[3] = 9.81
     u_bar = linterp(params[:n_nodes], u_guess, u_guess)

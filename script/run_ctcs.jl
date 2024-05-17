@@ -225,5 +225,7 @@ for x_hist in result[:x_hist]
     )
 end
 
-# # Display the plot
-# display(p3d)
+# TODO: plot cost in log scale over nodes 
+
+# Display the plot
+display(p3d)
