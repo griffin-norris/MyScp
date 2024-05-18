@@ -22,8 +22,8 @@ u_min = [0.0, 0.0, 0.0, -10.0, -10.0, -1.0]
 
 obstacle_centers = [
     [-5.0, 0.01, 0.0],
-    [0.0, 0.01, 0.0],
-    [5.0, 0.01, 0.0],
+    [0.0, -1.00, 0.0],
+    [5.0, 0.01, 1.0],
 ]
 
 # Must be orthogonal unit vectors
@@ -51,14 +51,14 @@ c_x = (x_max + x_min) / 2
 S_u = Diagonal(max.(ones(n_u), abs.(u_min - u_max) / 2))
 c_u = (u_max + u_min) / 2
 
-w_tr = 1e2
+w_tr = 1e-0
 λ_fuel = 1e1
 λ_vc = 1e2
-λ_vc_ctcs = 1e1
+λ_vc_ctcs = 5e1
 scale = max(w_tr, λ_fuel, λ_vc, λ_vc_ctcs)
 
 total_time = 10.0
-dt_ss = 1.0
+dt_ss = 0.1
 dt_sim = 0.05
 
 n_nodes = Int(total_time / dt_ss) + 1
@@ -70,7 +70,7 @@ params = Dict(
     :total_time => total_time,
     :dt_ss => dt_ss,
     :dt_sim => dt_sim,
-    :k_max => 50,
+    :k_max => 200,
     :n_nodes => n_nodes,
     :n_x => n_x,
     :n_x_aug => n_x_aug,
@@ -84,7 +84,7 @@ params = Dict(
     :c_x => c_x,
     :c_u => c_u,
     :w_tr => w_tr / scale,
-    :w_tr_adapt_factor => 1.1,
+    :w_tr_adapt_factor => 1.01,
     :λ_fuel => λ_fuel / scale,
     :λ_vc => λ_vc / scale,
     :λ_vc_ctcs => λ_vc_ctcs / scale,
