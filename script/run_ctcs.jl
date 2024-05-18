@@ -300,7 +300,7 @@ albumplt = plot(
 for (i, x_hist) in enumerate(result[:x_hist])
     plot!(
         albumplt,
-        x_hist[1, :], x_hist[3, :],
+        x_hist[1, :], x_hist[3, :] .- i*0.004,
         alpha=0.5,
         linewidth=4,
     )
@@ -309,7 +309,7 @@ end
 # Plot final trajectory in x-z plane
 plot!(
     albumplt,
-    result[:x][1, :], result[:x][3, :],
+    result[:x][1, :], result[:x][3, :] .- length(result[:x_hist])*0.004,
     linewidth=6,
 )
 
