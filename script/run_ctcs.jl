@@ -280,3 +280,40 @@ plot!(
 
 # Display the plot
 display(p3d)
+
+gr()
+
+# Create a new plot
+albumplt = plot(
+    dpi=72,
+    size=(2400, 2400),
+    legend=false,
+    # ticks = false,
+    # showaxis=false,
+    framestyle=:none,
+    background=:black,
+    foreground=:black,
+    palette=palette(:managua, 1:n_iterations+1, rev=true),
+)
+
+# Plot trajectory history in x-z plane
+for (i, x_hist) in enumerate(result[:x_hist])
+    plot!(
+        albumplt,
+        x_hist[1, :], x_hist[3, :],
+        alpha=0.5,
+        linewidth=4,
+    )
+end
+
+# Plot final trajectory in x-z plane
+plot!(
+    albumplt,
+    result[:x][1, :], result[:x][3, :],
+    linewidth=6,
+)
+
+# Save or display the plot
+savefig(albumplt, "minimalist_trajectory_xz.pdf")
+savefig(albumplt, "minimalist_trajectory_xz.png")
+display(albumplt)
