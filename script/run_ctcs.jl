@@ -210,10 +210,10 @@ p3d = plot3d(
 function generate_ellipsoid_points(center, radii, axes, n=40)
     u = range(0, stop=2π, length=n)
     v = range(0, stop=π, length=n)
-    
-    x = [1/radii[1] * cos(ui) * sin(vi) for ui in u, vi in v]
-    y = [1/radii[2] * sin(ui) * sin(vi) for ui in u, vi in v]
-    z = [1/radii[3] * cos(vi) for ui in u, vi in v]
+
+    x = [1 / radii[1] * cos(ui) * sin(vi) for ui in u, vi in v]
+    y = [1 / radii[2] * sin(ui) * sin(vi) for ui in u, vi in v]
+    z = [1 / radii[3] * cos(vi) for ui in u, vi in v]
 
     points = [x[:] y[:] z[:]]'
     rotated_points = axes * points
@@ -222,7 +222,7 @@ function generate_ellipsoid_points(center, radii, axes, n=40)
     X = reshape(translated_points[1, :], n, n)
     Y = reshape(translated_points[2, :], n, n)
     Z = reshape(translated_points[3, :], n, n)
-    
+
     return X, Y, Z
 end
 
@@ -281,39 +281,43 @@ plot!(
 # Display the plot
 display(p3d)
 
-gr()
 
-# Create a new plot
-albumplt = plot(
-    dpi=72,
-    size=(2400, 2400),
-    legend=false,
-    # ticks = false,
-    # showaxis=false,
-    framestyle=:none,
-    background=:black,
-    foreground=:black,
-    palette=palette(:managua, 1:n_iterations+1, rev=true),
-)
+album_plot = false
+if album_plot
+    gr()
 
-# Plot trajectory history in x-z plane
-for (i, x_hist) in enumerate(result[:x_hist])
+    # Create a new plot
+    albumplt = plot(
+        dpi=72,
+        size=(2400, 2400),
+        legend=false,
+        # ticks = false,
+        # showaxis=false,
+        framestyle=:none,
+        background=:black,
+        foreground=:black,
+        palette=palette(:managua, 1:n_iterations+1, rev=true),
+    )
+
+    # Plot trajectory history in x-z plane
+    for (i, x_hist) in enumerate(result[:x_hist])
+        plot!(
+            albumplt,
+            x_hist[1, :], x_hist[3, :],
+            alpha=0.5,
+            linewidth=4,
+        )
+    end
+
+    # Plot final trajectory in x-z plane
     plot!(
         albumplt,
-        x_hist[1, :], x_hist[3, :],
-        alpha=0.5,
-        linewidth=4,
+        result[:x][1, :], result[:x][3, :],
+        linewidth=6,
     )
+
+    # Save or display the plot
+    savefig(albumplt, "minimalist_trajectory_xz.pdf")
+    savefig(albumplt, "minimalist_trajectory_xz.png")
+    display(albumplt)
 end
-
-# Plot final trajectory in x-z plane
-plot!(
-    albumplt,
-    result[:x][1, :], result[:x][3, :],
-    linewidth=6,
-)
-
-# Save or display the plot
-savefig(albumplt, "minimalist_trajectory_xz.pdf")
-savefig(albumplt, "minimalist_trajectory_xz.png")
-display(albumplt)
