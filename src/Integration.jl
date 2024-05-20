@@ -56,7 +56,7 @@ function simulate_nonlinear(
             (t, t + params[:dt_ss]),
             (u_start, u_slope, t, params)
         )
-        sol = solve(prob, reltol=1e-6, abstol=1e-6, saveat=t_eval)
+        sol = solve(prob, DP8(), reltol=1e-6, abstol=1e-6, saveat=t_eval)
         for k in 2:length(sol.u)
             push!(states, sol.u[k])
         end

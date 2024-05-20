@@ -97,6 +97,7 @@ params = Dict(
     :x_min => x_min,
     :u_max => u_max,
     :u_min => u_min,
+    :dis_int_high_order => false,
 )
 
 result = ctcs_main(params)
@@ -201,7 +202,7 @@ plot!(
 display(p)
 
 plotlyjs()
-p3d = plot3d(
+p3d = plot(
     size=(1600, 1000),
     palette=palette(:inferno, 1:n_iterations+1, rev=true),
 )
@@ -276,6 +277,21 @@ plot!(
     ylims=(params[:x_min][2], params[:x_max][2]),
     zlims=(params[:x_min][3], params[:x_max][3]),
 )
+
+plot_full_trajectory = false
+if plot_full_trajectory
+    plot!(
+        p3d,
+        result[:x_full][1, :],
+        result[:x_full][2, :],
+        result[:x_full][3, :],
+        linewidth=10,
+        # color=:inferno,
+        # marker=:circle,
+        ylims=(params[:x_min][2], params[:x_max][2]),
+        zlims=(params[:x_min][3], params[:x_max][3]),
+    )
+end
 
 # TODO: plot cost in log scale over nodes 
 
