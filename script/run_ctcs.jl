@@ -1,9 +1,12 @@
 using LinearAlgebra
 using Plots
+using Random
 
 include("../src/MyScp.jl")
 
 using .MyScp
+
+Random.seed!(0)
 
 n_x = 13
 n_x_aug = n_x + 1
@@ -29,21 +32,22 @@ obstacle_centers = [
 # Must be orthogonal unit vectors
 # can use function `generate_orthogonal_unit_vectors`
 obstacle_axes = [
-    I(3),
-    I(3),
-    I(3),
+    # I(3),
+    # I(3),
+    # I(3),
+    generate_orthogonal_unit_vectors(),
+    generate_orthogonal_unit_vectors(),
+    generate_orthogonal_unit_vectors(),
 ]
 
 obstacle_radius = [
-    1.0 * ones(3),
-    1.0 * ones(3),
-    1.0 * ones(3),
+    # 1.0 * ones(3),
+    # 1.0 * ones(3),
+    # 1.0 * ones(3),
+    rand(3) + 0.5 * ones(3),
+    rand(3) + 0.5 * ones(3),
+    rand(3) + 0.5 * ones(3),
 ]
-
-# S_x = I(n_x_aug)
-# S_u = I(n_u)
-# c_x = zeros(n_x_aug)
-# c_u = zeros(n_u)
 
 S_x = Diagonal(max.(ones(n_x_aug), abs.(x_min - x_max) / 2))
 c_x = (x_max + x_min) / 2

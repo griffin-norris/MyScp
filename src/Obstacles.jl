@@ -1,7 +1,7 @@
 using LinearAlgebra
 using Random
 
-export EllipsoidalObstacle, ellipsoid_g_bar_ctcs, ellipsoid_grad_g_bar_ctcs
+export EllipsoidalObstacle, ellipsoid_g_bar_ctcs, ellipsoid_grad_g_bar_ctcs, generate_orthogonal_unit_vectors
 
 struct EllipsoidalObstacle
     center::Array{Float64,1}
