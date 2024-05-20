@@ -68,13 +68,18 @@ end
 function ctcs_main(params)
     J_vc = 1e2
     J_tr = 1e2
-
-    # TODO: kind of disgusting augmentation of x here
-    x_bar = linterp(params[:n_nodes], [params[:x_initial]; 0.0], [params[:x_final]; 0.0])
-    # TODO: do finite differencing on position to get velocity
+    
     u_guess = zeros(params[:n_u])
     u_guess[3] = 9.81
-    u_bar = linterp(params[:n_nodes], u_guess, u_guess)
+
+    x_bar, u_bar = initialize_trajectory(
+        params[:n_nodes],
+        params[:dt_ss],
+        params[:x_initial],
+        params[:x_final],
+        u_guess,
+        1:3, 4:6,
+    )
 
     obstacles = []
     for k in 1:params[:n_obs]

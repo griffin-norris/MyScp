@@ -21,6 +21,17 @@ function linterp(nodes, init, final)
     return hcat(linear...)
 end
 
+function initialize_trajectory(n_nodes, dt_ss, x_initial, x_final, u_guess, idx_pos, idx_vel)
+    # TODO: kind of disgusting augmentation of x here
+    x_bar = linterp(n_nodes, [x_initial; 0.0], [x_final; 0.0])
+    for k in 2:n_nodes
+        x_bar[idx_vel, k] = (x_bar[idx_pos, k] - x_bar[idx_pos, k-1]) / dt_ss
+    end
+    u_bar = linterp(n_nodes, u_guess, u_guess)
+    display(x_bar)
+    return (x_bar, u_bar)
+end
+
 function OCP(
     params,
     sys::LinearizedDiscretizedFohSystem,
