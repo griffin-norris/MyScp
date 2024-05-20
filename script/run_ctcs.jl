@@ -90,6 +90,7 @@ params = Dict(
     :λ_vc_ctcs => λ_vc_ctcs / scale,
     :ϵ_tr => 1E-3,
     :ϵ_vc => 1E-7,
+    :ϵ_vc_ctcs => 1E-4,
     :x_initial => x_initial,
     :x_final => x_final,
     :x_max => x_max,

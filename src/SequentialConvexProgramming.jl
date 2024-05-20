@@ -100,7 +100,7 @@ function ctcs_main(params)
     println("Iter | J_total |  J_tr   |  J_vc   | J_vc_ctcs ")
     println("----------------------------------------------")
 
-    while k <= params[:k_max] && ((J_tr >= params[:ϵ_tr]) || (J_vc >= params[:ϵ_vc]))
+    while k <= params[:k_max] && ((J_tr >= params[:ϵ_tr]) || (J_vc >= params[:ϵ_vc]) || (J_vc_ctcs >= params[:ϵ_vc_ctcs]))
         x, u, J_total, J_vc, J_vc_ctcs, J_tr = ctcs_subproblem(
             x_bar,
             u_bar,
