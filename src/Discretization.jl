@@ -82,11 +82,21 @@ function calculate_discretization(
     for k in 1:(N-1)
         V0[idx.x] .= x[:, k]
 
-        k1 = dVdt(0.0, V0, u[:, k], u[:, k+1], f, A, B, params)
-        k2 = dVdt(dt / 2, V0 + (dt / 2) .* k1, u[:, k], u[:, k+1], f, A, B, params)
-        k3 = dVdt(dt / 2, V0 + (dt / 2) .* k2, u[:, k], u[:, k+1], f, A, B, params)
-        k4 = dVdt(dt, V0 + dt .* k3, u[:, k], u[:, k+1], f, A, B, params)
-        V = V0 + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        # k1 = dVdt(0.0, V0, u[:, k], u[:, k+1], f, A, B, params)
+        # k2 = dVdt(dt / 2, V0 + (dt / 2) .* k1, u[:, k], u[:, k+1], f, A, B, params)
+        # k3 = dVdt(dt / 2, V0 + (dt / 2) .* k2, u[:, k], u[:, k+1], f, A, B, params)
+        # k4 = dVdt(dt, V0 + dt .* k3, u[:, k], u[:, k+1], f, A, B, params)
+        # V = V0 + dt / 6 * (k1 + 2 * k2 + 2 * k3 + k4)
+        prob = ODEProblem(
+            (V, p, t) -> dVdt(
+                t, V, p[1], p[2], p[3], p[4], p[5], p[6],
+            ),
+            V0,
+            (0.0, dt),
+            (u[:,k], u[:, k+1], f, A, B, params)
+        )
+        sol = sol = solve(prob, DP8(), reltol=1e-6, abstol=1e-6)
+        V = sol.u[end]
 
         f_bar[:, k] .= V[idx.x]
         A_bar[:, k] .= V[idx.A]
