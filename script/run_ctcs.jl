@@ -97,6 +97,7 @@ params = Dict(
     :x_min => x_min,
     :u_max => u_max,
     :u_min => u_min,
+    :dis_int_high_order => false,
 )
 
 result = ctcs_main(params)
