@@ -253,6 +253,7 @@ for obs in obstacles
         seriestype=:surface,
         opacity=0.5,
         legend=false,
+        showscale=false,
     )
 end
 
