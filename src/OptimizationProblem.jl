@@ -28,7 +28,6 @@ function initialize_trajectory(n_nodes, dt_ss, x_initial, x_final, u_guess, idx_
         x_bar[idx_vel, k] = (x_bar[idx_pos, k] - x_bar[idx_pos, k-1]) / dt_ss
     end
     u_bar = linterp(n_nodes, u_guess, u_guess)
-    display(x_bar)
     return (x_bar, u_bar)
 end
 
