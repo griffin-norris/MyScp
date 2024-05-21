@@ -195,7 +195,8 @@ plot!(
     result[:ν][:, :]',
     title="Virtual Control",
     ylabel="Values",
-    label=["ν1" "ν2" "ν3"]
+    label=["ν1" "ν2" "ν3" "ν4" "ν5" "ν6" "ν7" "ν8" "ν9" "ν10" "ν11" "ν12" "ν13" "ν14"],
+    palette=palette(:matter, 1:14),
 )
 
 display(p2)
