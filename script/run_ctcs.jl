@@ -145,10 +145,6 @@ plot!(
 plot!(
     p[3],
     result[:x][4:6, :]',
-    # ylims=(
-    #     1.2 * minimum(params[:x_min][4:6]),
-    #     1.2 * maximum(params[:x_max][4:6]),
-    # ),
     title="Velocity (Inertial Frame)",
     ylabel="Values",
     label=["vx" "vy" "vz"]
@@ -169,10 +165,6 @@ plot!(
 plot!(
     p[4],
     result[:x][11:13, :]',
-    ylims=(
-        1.2 * minimum(params[:x_min][11:13]),
-        1.2 * maximum(params[:x_max][11:13]),
-    ),
     title="Rotation Rate (Body Frame)",
     ylabel="Values",
     label=["ω1" "ω2" "ω3"]
@@ -181,10 +173,6 @@ plot!(
 plot!(
     p[5],
     result[:u][1:3, :]',
-    # ylims=(
-    #     1.2 * minimum(params[:u_min][1:3]),
-    #     1.2 * maximum(params[:u_max][1:3]),
-    # ),
     title="Force (Body Frame)",
     ylabel="Values",
     label=["Fb1" "Fb2" "Fb3"]
@@ -193,10 +181,6 @@ plot!(
 plot!(
     p[6],
     result[:u][4:6, :]',
-    # ylims=(
-    #     1.2 * minimum(params[:u_min][4:6]),
-    #     1.2 * maximum(params[:u_max][4:6]),
-    # ),
     title="Torque (Body Frame)",
     ylabel="Values",
     label=["τ1" "τ2" "τ3"]
@@ -221,7 +205,6 @@ p3d = plot(
     size=(1600, 1000),
     palette=palette(:inferno, 1:n_iterations+1, rev=true),
 )
-
 
 # Define function to generate ellipsoid points
 function generate_ellipsoid_points(center, radii, axes, n=40)
@@ -302,8 +285,6 @@ if plot_full_trajectory
         result[:x_full][2, :],
         result[:x_full][3, :],
         linewidth=10,
-        # color=:inferno,
-        # marker=:circle,
         ylims=(params[:x_min][2], params[:x_max][2]),
         zlims=(params[:x_min][3], params[:x_max][3]),
     )
@@ -314,7 +295,6 @@ end
 # Display the plot
 display(p3d)
 
-
 album_plot = false
 if album_plot
     gr()
@@ -324,8 +304,6 @@ if album_plot
         dpi=72,
         size=(2400, 2400),
         legend=false,
-        # ticks = false,
-        # showaxis=false,
         framestyle=:none,
         background=:black,
         foreground=:black,
