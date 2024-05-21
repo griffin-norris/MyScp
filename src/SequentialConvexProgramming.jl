@@ -62,7 +62,7 @@ function ctcs_subproblem(x_bar, u_bar, f_aug, A_aug, B_aug, params; verbose=fals
         display(maximum(jp.value.(model[:dx])))
     end
 
-    return x, u, jp.objective_value(model), J_vc, J_vc_ctcs, J_tr
+    return x, u, jp.objective_value(model), J_vc, J_vc_ctcs, J_tr, nu
 end
 
 function ctcs_main(params)
@@ -97,6 +97,7 @@ function ctcs_main(params)
 
     x = copy(x_bar)
     u = copy(u_bar)
+    ν = zeros(params[:n_x_aug], params[:n_nodes])
 
     x_hist = [copy(x)]
     u_hist = [copy(u)]
@@ -106,7 +107,7 @@ function ctcs_main(params)
     println("----------------------------------------------")
 
     while k <= params[:k_max] && ((J_tr >= params[:ϵ_tr]) || (J_vc >= params[:ϵ_vc]) || (J_vc_ctcs >= params[:ϵ_vc_ctcs]))
-        x, u, J_total, J_vc, J_vc_ctcs, J_tr = ctcs_subproblem(
+        x, u, J_total, J_vc, J_vc_ctcs, J_tr, ν = ctcs_subproblem(
             x_bar,
             u_bar,
             (x, u, p) -> nonlinear_dynamics_aug(nonlinear_drone_dynamics, x, u, p, obstacles),
@@ -135,6 +136,7 @@ function ctcs_main(params)
         :x_full => x_full,
         :x_hist => x_hist,
         :u_hist => u_hist,
+        :ν => ν,
         :iterations => k,
     )
 

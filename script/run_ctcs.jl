@@ -205,6 +205,17 @@ plot!(
 # Display the plot
 display(p)
 
+p2 = plot()
+plot!(
+    p2,
+    result[:ν][:, :]',
+    title="Virtual Control",
+    ylabel="Values",
+    label=["ν1" "ν2" "ν3"]
+)
+
+display(p2)
+
 plotlyjs()
 p3d = plot(
     size=(1600, 1000),
