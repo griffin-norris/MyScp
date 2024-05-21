@@ -25,7 +25,7 @@ u_min = [0.0, 0.0, 0.0, -10.0, -10.0, -1.0]
 
 obstacle_centers = [
     [-5.0, 0.01, 0.0],
-    [0.0, 0.01, 0.0],
+    [0.0, -0.01, 0.0],
     [5.0, 0.01, 0.0],
 ]
 
@@ -55,14 +55,14 @@ c_x = (x_max + x_min) / 2
 S_u = Diagonal(max.(ones(n_u), abs.(u_min - u_max) / 2))
 c_u = (u_max + u_min) / 2
 
-w_tr = 1e2
+w_tr = 1e1
 λ_fuel = 1e1
 λ_vc = 1e2
 λ_vc_ctcs = 1e1
 scale = max(w_tr, λ_fuel, λ_vc, λ_vc_ctcs)
 
 total_time = 10.0
-dt_ss = 1.0
+dt_ss = total_time/10
 dt_sim = 0.05
 
 n_nodes = Int(total_time / dt_ss) + 1
@@ -88,7 +88,7 @@ params = Dict(
     :c_x => c_x,
     :c_u => c_u,
     :w_tr => w_tr / scale,
-    :w_tr_adapt_factor => 1.1,
+    :w_tr_adapt_factor => 1.00,
     :λ_fuel => λ_fuel / scale,
     :λ_vc => λ_vc / scale,
     :λ_vc_ctcs => λ_vc_ctcs / scale,
@@ -278,7 +278,7 @@ plot!(
     zlims=(params[:x_min][3], params[:x_max][3]),
 )
 
-plot_full_trajectory = false
+plot_full_trajectory = true
 if plot_full_trajectory
     plot!(
         p3d,
