@@ -32,6 +32,13 @@ function generate_keep_out_sphere!(obs_centers, obs_radius, obs_axes, x, y, z, r
     push!(obs_axes, generate_orthogonal_unit_vectors())
 end
 
+function set_pos_max!(x_max, px, py, pz)
+    x_max[1:3] = [Float64(px), Float64(py), Float64(pz)]
+end
+
+function set_pos_min!(x_min, px, py, pz)
+    x_min[1:3] = [Float64(px), Float64(py), Float64(pz)]
+end
 
 n_x = 13
 n_x_aug = n_x + 1
@@ -89,6 +96,24 @@ for message in data
                     args["r"],
                 )
                 global n_obs += 1
+            end
+            if tool_call["name"] == "set_pos_max"
+                args = tool_call["arguments"]
+                set_pos_max!(
+                    x_max,
+                    args["x_max"],
+                    args["y_max"],
+                    args["z_max"],
+                )
+            end
+            if tool_call["name"] == "set_pos_min"
+                args = tool_call["arguments"]
+                set_pos_min!(
+                    x_min,
+                    args["x_min"],
+                    args["y_min"],
+                    args["z_min"],
+                )
             end
         end
     end
