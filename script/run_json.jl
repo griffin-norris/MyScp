@@ -60,7 +60,7 @@ obstacle_axes = []
 obstacle_radius = []
 n_obs=0
 
-filename = "data/conversation_01.json"
+filename = "data/conversation_20240523_121948.json"
 data = load_function_calls(filename)
 for message in data
     if haskey(message, "tool_calls")
