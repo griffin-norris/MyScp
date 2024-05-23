@@ -51,6 +51,7 @@ u_min = [0.0, 0.0, 0.0, -10.0, -10.0, -1.0]
 obstacle_centers = []
 obstacle_axes = []
 obstacle_radius = []
+n_obs=0
 
 filename = "data/conversation_01.json"
 data = load_function_calls(filename)
@@ -87,6 +88,7 @@ for message in data
                     args["z"],
                     args["r"],
                 )
+                global n_obs += 1
             end
         end
     end
@@ -126,7 +128,7 @@ params = Dict(
     :n_x => n_x,
     :n_x_aug => n_x_aug,
     :n_u => n_u,
-    :n_obs => 2,
+    :n_obs => n_obs,
     :obstacle_centers => obstacle_centers,
     :obstacle_axes => obstacle_axes,
     :obstacle_radius => obstacle_radius,
