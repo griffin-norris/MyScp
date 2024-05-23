@@ -1,0 +1,66 @@
+[
+    {
+        "role": "system",
+        "content": "\n            Imagine you are helping the user define a trajectory optimization problem.\n            We need to define the desired target point where the trajectory should end as well as several keep-out zones (constraints) which the trajectory cannot enter.\n            All distances are in meters unless otherwise specified.\n            Initial and final position MUST be specified.\n            Don't make assumptions about what values to plug into functions.\n            Ask for clarification if a user request is ambiguous.\n            "
+    },
+    {
+        "role": "user",
+        "content": "Plan me a trajectory to get to the desired end point"
+    },
+    {
+        "role": "assistant",
+        "content": "Of course! We need the initial and final positions for the trajectory and any specified keep-out zones. Let's start with that.\n\n1. Could you please provide the coordinates for the initial position (x, y, z)?\n2. What are the coordinates for the desired final position (x, y, z)?\n3. Are there any keep-out zones (spheres) that the trajectory needs to avoid? If yes, please provide the center coordinates (x, y, z) and the radius for each keep-out zone."
+    },
+    {
+        "role": "user",
+        "content": "I would like to get to the point (10, 0, 0.0) and I cannot get within 2m of the point (0.0, 1.0) or the point 5m further in the x direction of the previous circle"
+    },
+    {
+        "role": "assistant",
+        "content": "Let's break down the information you provided:\n\n1. **Final Position**: (10, 0, 0)\n2. **Keep-out Zones**: \n   - First zone: Center at (0, 1, 0) with a radius of 2 meters\n   - Second zone: Center at (5, 1, 0) with a radius of 2 meters\n\nHowever, you haven't provided the initial position yet. Could you please provide the initial position coordinates (x, y, z)?"
+    },
+    {
+        "role": "user",
+        "content": "The initial position is (-10, 5, 0)"
+    },
+    {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+            {
+                "name": "set_pos_initial",
+                "arguments": {
+                    "x": -10,
+                    "y": 5,
+                    "z": 0
+                }
+            },
+            {
+                "name": "set_pos_final",
+                "arguments": {
+                    "x": 10,
+                    "y": 0,
+                    "z": 0
+                }
+            },
+            {
+                "name": "generate_keep_out_sphere",
+                "arguments": {
+                    "x": 0,
+                    "y": 1,
+                    "z": 0,
+                    "r": 2
+                }
+            },
+            {
+                "name": "generate_keep_out_sphere",
+                "arguments": {
+                    "x": 5,
+                    "y": 1,
+                    "z": 0,
+                    "r": 2
+                }
+            }
+        ]
+    }
+]
