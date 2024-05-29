@@ -1,0 +1,89 @@
+[
+    {
+        "role": "system",
+        "content": "\n            Imagine you are helping the user define a trajectory optimization problem.\n            We need to define the desired target point where the trajectory should end as well as several keep-out zones (constraints) which the trajectory cannot enter.\n            All distances are in meters unless otherwise specified.\n            Initial and final position MUST be specified.\n            The user may modify the position constraints by specifying max/min values. By default these are set to +/- (10,10,10).\n            Don't make assumptions about what values to plug into functions.\n            Ask for clarification if a user request is ambiguous.\n            Make ask the user if they are ready before you start using tool calls.\n            "
+    },
+    {
+        "role": "user",
+        "content": "Plan me a trajectory to get to the desired end point"
+    },
+    {
+        "role": "assistant",
+        "content": "Sure thing! We'll need to start by defining some parameters:\n\n1. The initial position (x, y, z) where the trajectory begins.\n2. The final (desired target) position (x, y, z) where the trajectory should end.\n3. Any keep-out zones (spheres) that the trajectory must avoid.\n4. Optionally, any modifications to the default position constraints (x, y, z minimum and maximum values).\n\nLet's start with the initial and final positions. Can you provide these values?"
+    },
+    {
+        "role": "user",
+        "content": "I am starting from (-10, 5, -1) and would like to get to (10, 0, 0). I need to avoid going near a table and cannot get to close to a wall"
+    },
+    {
+        "role": "assistant",
+        "content": "Got it! We'll set the initial position to (-10, 5, -1) and the final position to (10, 0, 0). To avoid the table and the wall, we'll need to define keep-out zones around them.\n\nCould you please provide the following details for the keep-out zones:\n1. The center coordinates (x, y, z) and the radius (r) for the table's keep-out zone.\n2. The center coordinates (x, y, z) and the radius (r) for the wall's keep-out zone.\n\nAlso, do you need to modify any of the default position constraints (+/- 10, 10, 10)?"
+    },
+    {
+        "role": "user",
+        "content": "The table is located at (0, 2, 0) and is about 3m wide. I actually don't want to go anywhere near the wall. Can we just block off that whole area completely rather than using a keep out sphere for the wall?"
+    },
+    {
+        "role": "assistant",
+        "content": "Sure! We can create a keep-out zone for the table using a sphere and set position constraints to block off the area near the wall.\n\nTo start, I'll set:\n1. The keep-out sphere for the table with center coordinates (0, 2, 0) and radius 3.5 meters to ensure a bit of a buffer.\n2. Modify the position constraints to block off the entire area near the wall.\n\nHow far should we block off around the wall in terms of the minimum and maximum distances in each direction?\n\nFor instance, let's define:\n- The maximum x value\n- The minimum x value\n- The maximum y value\n- The minimum y value\n- The maximum z value\n- The minimum z value"
+    },
+    {
+        "role": "user",
+        "content": "Sure, the wall is located at y=7, additionally, there is a floor at -1.2 that I must stay above, and a ceiling at 0.1, can you adjust those constraints as well?"
+    },
+    {
+        "role": "assistant",
+        "content": "Certainly! We will set the following constraints:\n- The keep-out sphere for the table at (0, 2, 0) with a radius of 3.5 meters.\n- Maximum y value to be less than 7 meters to avoid the wall.\n- Minimum z value to be above the floor at -1.2 meters.\n- Maximum z value to be below the ceiling at 0.1 meters.\n\nI'll proceed with these configurations:\n\n### Tool Calls\n1. Set the initial position.\n2. Set the final position.\n3. Generate the keep-out zone for the table.\n4. Adjust the position constraints (max y, min z, max z).\n\nAre you ready for me to proceed?"
+    },
+    {
+        "role": "user",
+        "content": "Yes, please continue."
+    },
+    {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+            {
+                "name": "set_pos_initial",
+                "arguments": {
+                    "x": -10,
+                    "y": 5,
+                    "z": -1
+                }
+            },
+            {
+                "name": "set_pos_final",
+                "arguments": {
+                    "x": 10,
+                    "y": 0,
+                    "z": 0
+                }
+            },
+            {
+                "name": "generate_keep_out_sphere",
+                "arguments": {
+                    "x": 0,
+                    "y": 2,
+                    "z": 0,
+                    "r": 3.5
+                }
+            },
+            {
+                "name": "set_pos_max",
+                "arguments": {
+                    "x_max": 10,
+                    "y_max": 6.999,
+                    "z_max": 0.1
+                }
+            },
+            {
+                "name": "set_pos_min",
+                "arguments": {
+                    "x_min": -10,
+                    "y_min": -10,
+                    "z_min": -1.2
+                }
+            }
+        ]
+    }
+]
