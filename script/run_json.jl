@@ -119,10 +119,6 @@ for message in data
     end
 end
 
-display(obstacle_axes)
-display(obstacle_radius)
-display(obstacle_centers)
-
 S_x = Diagonal(max.(ones(n_x_aug), abs.(x_min - x_max) / 2))
 c_x = (x_max + x_min) / 2
 
