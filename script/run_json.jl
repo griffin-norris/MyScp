@@ -58,7 +58,7 @@ u_min = [0.0, 0.0, 0.0, -10.0, -10.0, -1.0]
 obstacle_centers = []
 obstacle_axes = []
 obstacle_radius = []
-n_obs=0
+n_obs = 0
 
 filename = get(ENV, "DATA_FILE_PATH", "data/conversation_20240529_154635.json")
 data = load_function_calls(filename)
