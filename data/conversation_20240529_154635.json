@@ -1,0 +1,136 @@
+[
+    {
+        "role": "system",
+        "content": "You are an assistant who helps a user formulate a trajectory optimization problem.\nOnce formulated the problem will be passed to an optimizer which will return the trajectory.\nThe problem is defined by the initial and terminal points, as well as the state constraints and optional keep-out zones (constraints) which the trajectory cannot enter.\nAll distances are in meters unless otherwise specified.\nInitial and final position MUST be specified.\nThe user may modify the position constraints by specifying max/min values. By default these are set to +/- (10,10,10).\nDon't make assumptions about what values to plug into functions.\nAsk for clarification if a user request is ambiguous.\nAsk the user to confirm before using any tool calls."
+    },
+    {
+        "role": "user",
+        "content": "can you plan me a trajectory from (-10, 1, 0) to (10, 0, 0) which avoids a 1m obstacle located at the origin"
+    },
+    {
+        "role": "assistant",
+        "content": "Sure, I will help you plan the trajectory. I'll start by setting the initial position, final position, and specifying the keep-out zone for the obstacle at the origin.\n\nHere's the plan:\n\n1. Set the initial position to (-10, 1, 0).\n2. Set the desired final position to (10, 0, 0).\n3. Define a keep-out spherical zone with a radius of 1 meter centered at the origin (0,0,0).\n\nDoes that sound good? Should I proceed?"
+    },
+    {
+        "role": "user",
+        "content": "yes"
+    },
+    {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+            {
+                "id": "call_dBTtgvAZECABKCzA7Hx0M733",
+                "type": "function",
+                "function": {
+                    "name": "set_pos_initial",
+                    "arguments": {
+                        "x": -10,
+                        "y": 1,
+                        "z": 0
+                    }
+                }
+            },
+            {
+                "id": "call_MFexcW5SJVNPM0tzoLpYvqRK",
+                "type": "function",
+                "function": {
+                    "name": "set_pos_final",
+                    "arguments": {
+                        "x": 10,
+                        "y": 0,
+                        "z": 0
+                    }
+                }
+            },
+            {
+                "id": "call_uQHpfiLmpyisLMpKyYUOJYIb",
+                "type": "function",
+                "function": {
+                    "name": "generate_keep_out_sphere",
+                    "arguments": {
+                        "x": 0,
+                        "y": 0,
+                        "z": 0,
+                        "r": 1
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_dBTtgvAZECABKCzA7Hx0M733",
+        "name": "set_pos_initial",
+        "content": "set_pos_initial{\"x\": -10, \"y\": 1, \"z\": 0}"
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_MFexcW5SJVNPM0tzoLpYvqRK",
+        "name": "set_pos_final",
+        "content": "set_pos_final{\"x\": 10, \"y\": 0, \"z\": 0}"
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_uQHpfiLmpyisLMpKyYUOJYIb",
+        "name": "generate_keep_out_sphere",
+        "content": "generate_keep_out_sphere{\"x\": 0, \"y\": 0, \"z\": 0, \"r\": 1}"
+    },
+    {
+        "role": "user",
+        "content": "save to file please"
+    },
+    {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+            {
+                "id": "call_eFPnHahdAEHpmMD3XRx0oEsm",
+                "type": "function",
+                "function": {
+                    "name": "write_to_file",
+                    "arguments": {}
+                }
+            }
+        ]
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_eFPnHahdAEHpmMD3XRx0oEsm",
+        "name": "write_to_file",
+        "content": "write_to_file{}"
+    },
+    {
+        "role": "user",
+        "content": "can you add an additional 2m obstacle at (0, 2, 0)"
+    },
+    {
+        "role": "assistant",
+        "content": null,
+        "tool_calls": [
+            {
+                "id": "call_ezcCVsUfFnvTILs9lx3dKY6v",
+                "type": "function",
+                "function": {
+                    "name": "generate_keep_out_sphere",
+                    "arguments": {
+                        "x": 0,
+                        "y": 2,
+                        "z": 0,
+                        "r": 2
+                    }
+                }
+            }
+        ]
+    },
+    {
+        "role": "tool",
+        "tool_call_id": "call_ezcCVsUfFnvTILs9lx3dKY6v",
+        "name": "generate_keep_out_sphere",
+        "content": "generate_keep_out_sphere{\"x\":0,\"y\":2,\"z\":0,\"r\":2}"
+    },
+    {
+        "role": "user",
+        "content": "please save to file"
+    }
+]
