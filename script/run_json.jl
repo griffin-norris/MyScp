@@ -65,9 +65,9 @@ data = load_function_calls(filename)
 for message in data
     if haskey(message, "tool_calls")
         tool_calls = message["tool_calls"]
-        for tool_call in tool_calls
-            if tool_call["name"] == "set_pos_initial"
-                args = tool_call["arguments"]
+        for call in tool_calls
+            if call["function"]["name"] == "set_pos_initial"
+                args = call["function"]["arguments"]
                 set_pos_initial!(
                     x_initial,
                     args["x"],
@@ -75,8 +75,8 @@ for message in data
                     args["z"],
                 )
             end
-            if tool_call["name"] == "set_pos_final"
-                args = tool_call["arguments"]
+            if call["function"]["name"] == "set_pos_final"
+                args = call["function"]["arguments"]
                 set_pos_final!(
                     x_final,
                     args["x"],
@@ -84,8 +84,8 @@ for message in data
                     args["z"],
                 )
             end
-            if tool_call["name"] == "generate_keep_out_sphere"
-                args = tool_call["arguments"]
+            if call["function"]["name"] == "generate_keep_out_sphere"
+                args = call["function"]["arguments"]
                 generate_keep_out_sphere!(
                     obstacle_centers,
                     obstacle_radius,
@@ -97,8 +97,8 @@ for message in data
                 )
                 global n_obs += 1
             end
-            if tool_call["name"] == "set_pos_max"
-                args = tool_call["arguments"]
+            if call["function"]["name"] == "set_pos_max"
+                args = call["function"]["arguments"]
                 set_pos_max!(
                     x_max,
                     args["x_max"],
@@ -106,8 +106,8 @@ for message in data
                     args["z_max"],
                 )
             end
-            if tool_call["name"] == "set_pos_min"
-                args = tool_call["arguments"]
+            if call["function"]["name"] == "set_pos_min"
+                args = call["function"]["arguments"]
                 set_pos_min!(
                     x_min,
                     args["x_min"],
