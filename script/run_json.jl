@@ -407,3 +407,4 @@ if album_plot
     savefig(albumplt, "minimalist_trajectory_xz.png")
     display(albumplt)
 end
+readline()
